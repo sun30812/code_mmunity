@@ -76,9 +76,9 @@ class SubmitButton extends StatelessWidget {
   }
 }
 
-/// 대쉬보드 화면에서 포스트로 나타나는 카드이다.
+/// 대시보드 화면에서 포스트로 나타나는 카드이다.
 ///
-/// [PostCard]는 대쉬보드에서 포스트를 담고 있는 카드 위젯이다. 제목, 내용(코드), 기타 동작이 포함된 형태가 기본이 된다.
+/// [PostCard]는 대시보드에서 게시글을 나타내는 카드 위젯이다. 제목, 내용(코드), 기타 동작이 포함된 형태가 기본이 된다.
 /// 공지용으로 [PostCard]를 만드는 경우 [isNotice] 매개변수를 통해 기타 동작의 유무를 제어할 수 있다.
 ///
 /// {@tool snippet}
@@ -112,7 +112,7 @@ class PostCard extends StatelessWidget {
 
   /// 포스트를 보여주는 카드이다.
   ///
-  /// [title] 매개변수를 통해 포스트의 제목 부분의 텍스트를 정의한다.
+  /// [title] 매개변수를 통해 포스트의 제목 부분을 정의한다.
   /// [data] 매개변수는 포스트의 내용부분을 정의한다.
   ///
   /// 만일 공지용 포스트로 제작하는 경우 [isNotice] 매개변수의 값을 `true`로 해야한다.
@@ -122,60 +122,44 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: getSmartWidth(context),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontSize: 24.0)),
-                  data,
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isNotice == null || !isNotice!)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: const [
-                        IconButton(
-                            onPressed: null,
-                            icon: Icon(Icons.favorite_border_outlined)),
-                        IconButton(onPressed: null, icon: Icon(Icons.share)),
-                        IconButton(
-                            onPressed: null,
-                            icon: Icon(
-                              Icons.notification_important_outlined,
-                              color: Colors.amber,
-                            ))
-                      ],
-                    ),
-                ],
-              )
-            ],
-          ),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 24.0)),
+                data,
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isNotice == null || !isNotice!)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      IconButton(
+                          onPressed: null,
+                          icon: Icon(Icons.favorite_border_outlined)),
+                      IconButton(onPressed: null, icon: Icon(Icons.share)),
+                      IconButton(
+                          onPressed: null,
+                          icon: Icon(
+                            Icons.notification_important_outlined,
+                            color: Colors.amber,
+                          ))
+                    ],
+                  ),
+              ],
+            )
+          ],
         ),
       ),
     );
-  }
-
-  /// 현재 디스플레이에 맞게 포스트 크기를 조절하기 위한 메서드이다.
-  ///
-  /// [context]로부터 현재 기기의 디스플레이 정보를 받아서 포스트의 사이즈를 조절한다.
-  double getSmartWidth(BuildContext context) {
-    double deviceWidth = MediaQuery.of(context).size.width;
-    if (isNotice != null && isNotice!) {
-      return deviceWidth;
-    }
-    if (deviceWidth > 600.0) {
-      return deviceWidth / 2;
-    }
-    return deviceWidth;
   }
 }

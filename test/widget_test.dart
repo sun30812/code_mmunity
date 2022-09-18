@@ -1,7 +1,6 @@
 import 'package:code_mmunity/view/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:code_mmunity/main.dart';
 
 void main() {
@@ -31,7 +30,7 @@ void main() {
 
       expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
       expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
-      expect(find.byType(PostCard), findsNWidgets(3));
+      expect(find.byType(PostCard), findsNWidgets(6));
     });
 
     testWidgets('글쓰기 버튼 동작 여부 확인', (WidgetTester tester) async {

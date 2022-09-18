@@ -57,10 +57,6 @@ class MainPage extends StatelessWidget {
                 buttonTitle: '로그인 없이 살펴보기',
                 iconData: Icons.login,
                 onClick: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('현재 이 기능은 동작하지 않습니다.'),
-                    duration: Duration(seconds: 2),
-                  ));
                   Navigator.pushNamed(context, '/dashboard');
                 },
               ),
