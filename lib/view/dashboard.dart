@@ -1,3 +1,4 @@
+import 'package:code_mmunity/controller/post_controller.dart';
 import 'package:code_mmunity/model/post.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:code_mmunity/view/write_post.dart';
@@ -87,12 +88,14 @@ class PostsPage extends StatefulWidget {
 }
 
 class _PostsPageState extends State<PostsPage> {
-  final List<String> _dummyPosts = [
-    'Test1',
-    'Test2',
-    'Test3',
-    'Test4',
-    'Test5'
+  final _demoInfoPost =
+      PostController(title: '시작하기', data: '우측 상단 연필 아이콘을 눌러 새로운 포스팅을 시작해보세요!');
+  final List<PostController> _dummyPosts = [
+    PostController(),
+    PostController(title: 'Dummy2'),
+    PostController(title: 'Dummy3'),
+    PostController(title: 'Dummy4'),
+    PostController(title: 'Dummy5'),
   ];
   @override
   Widget build(BuildContext context) {
@@ -102,34 +105,20 @@ class _PostsPageState extends State<PostsPage> {
         SizedBox(
           width: MediaQuery.of(context).size.width,
           child: PostCard(
-            title: '시작하기',
-            data: Column(
-              children: const [
-                Text('우측 상단 연필 아이콘을 눌러 새로운 포스팅을 시작해보세요!'),
-              ],
-            ),
+            post: _demoInfoPost,
             isNotice: true,
           ),
         ),
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              if (constraints.maxWidth > 600) {
-                return GridView.count(
-                  crossAxisCount: (constraints.maxWidth.toInt() - 200) ~/ 200,
-                  childAspectRatio: 2.0,
-                  children: List.generate(_dummyPosts.length, (index) {
-                    return PostCard(
-                        title: '테스트 게시글', data: Text(_dummyPosts[index]));
-                  }),
-                );
-              }
-              return ListView.builder(
-                  itemCount: _dummyPosts.length,
-                  itemBuilder: (BuildContext context, int count) {
-                    return PostCard(
-                        title: '테스트 게시글', data: Text(_dummyPosts[count]));
-                  });
+              return GridView.count(
+                crossAxisCount: (constraints.maxWidth.toInt() - 200) ~/ 200,
+                childAspectRatio: 2.0,
+                children: List.generate(_dummyPosts.length, (index) {
+                  return PostCard(post: _dummyPosts[index]);
+                }),
+              );
             },
           ),
         )

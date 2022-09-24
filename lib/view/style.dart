@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../controller/post_controller.dart';
+
 /// 기본 동작을 취하는 버튼이다.
 ///
 /// [SubmitButton]위젯은 아이콘과 글자가 같이 있는 형태의 버튼이다. 매개변수로 버튼 제목, 아이콘, 동작 등을 넘겨받으며,
@@ -87,18 +89,14 @@ class SubmitButton extends StatelessWidget {
 ///
 /// ```dart
 /// PostCard(
-///   title: '긴급 공지',
-///   data: Text('이 공지는 테스트 용으로 만들어졌습니다.'),
+///   post: PostController(title: '시작하기', data: '우측 상단 연필 아이콘을 눌러 새로운 포스팅을 시작해보세요!');
 ///   isNotice: true,
 ///  )
 /// ```
 /// {@end-tool}
-class PostCard extends StatelessWidget {
-  /// 포스트의 제목 부분에 들어갈 문자열을 기입한다. 굵으면서 글꼴의 크기가 크다.
-  final String title;
-
-  /// 포스트의 내용을 기입한다. 다양한 형식의 `Widget`이 지원된다.
-  final Widget data;
+class PostCard extends StatefulWidget {
+  /// 포스트에 대한 정보를 담고있는 [PostController]를 가진다.
+  final PostController post;
 
   /// 공지용 포스트로 지정할 지를 결정한다. 이 매개변수가 `true`인 경우 해당 포스트는 닫을 수 있으며, 일부 기능이 포스트에 나타나지 않는다.
   ///
@@ -112,14 +110,17 @@ class PostCard extends StatelessWidget {
 
   /// 포스트를 보여주는 카드이다.
   ///
-  /// [title] 매개변수를 통해 포스트의 제목 부분을 정의한다.
-  /// [data] 매개변수는 포스트의 내용부분을 정의한다.
   ///
   /// 만일 공지용 포스트로 제작하는 경우 [isNotice] 매개변수의 값을 `true`로 해야한다.
-  const PostCard(
-      {Key? key, required this.title, required this.data, this.isNotice})
+  const PostCard({Key? key, required this.post, this.isNotice})
       : super(key: key);
 
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool isLike = false;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -132,22 +133,36 @@ class PostCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 24.0)),
-                data,
+                Text(widget.post.title, style: const TextStyle(fontSize: 24.0)),
+                Text(widget.post.data),
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isNotice == null || !isNotice!)
+                if (widget.isNotice == null || !widget.isNotice!)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
+                    children: [
                       IconButton(
-                          onPressed: null,
-                          icon: Icon(Icons.favorite_border_outlined)),
-                      IconButton(onPressed: null, icon: Icon(Icons.share)),
-                      IconButton(
+                          onPressed: () => setState(() {
+                                if (!isLike) {
+                                  widget.post.incrementLikes();
+                                  isLike = true;
+                                } else {
+                                  widget.post.decrementLikes();
+                                  isLike = false;
+                                }
+                              }),
+                          icon: Icon(
+                            isLike
+                                ? Icons.favorite
+                                : Icons.favorite_border_outlined,
+                            color: Colors.pinkAccent,
+                          )),
+                      const IconButton(
+                          onPressed: null, icon: Icon(Icons.share)),
+                      const IconButton(
                           onPressed: null,
                           icon: Icon(
                             Icons.notification_important_outlined,

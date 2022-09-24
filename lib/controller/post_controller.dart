@@ -8,24 +8,50 @@ import 'package:code_mmunity/model/post.dart';
 class PostController {
   late final Post _post;
 
-  PostController() {
+  static List<PostController> fromServer({required String serverIp}) {
+    List<PostController> list = [];
+    // TODO: list 변수에 서버에서 받아와서 추가하는 과정 필요
+    return list;
+  }
+
+  PostController(
+      {String id = 'null',
+      String title = 'Dummy',
+      String data = 'Dummy Data'}) {
     _post = Post(
-        title: 'Test',
-        data: 'This content is test',
+        id: id,
+        title: title,
+        data: data,
         likes: 0,
         reportCount: 0,
-        leftDays: 5);
+        leftDays: 0);
   }
 
+  /// 포스트의 id를 가져온다.
+  String get id => _post.id;
+
+  /// 포스트의 제목을 가져온다.
+  String get title => _post.title;
+
+  /// 포스트 내용을 가져온다.
+  String get data => _post.data;
+
+  /// 공감 수를 가져온다.
   int get likes => _post.likes;
 
+  /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
   void incrementLikes() {
     _post.likes++;
+    print('현재 공감 수: ${_post.likes}');
   }
 
+  /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
   void decrementLikes() {
     _post.likes--;
+    print('현재 공감 수: ${_post.likes}');
   }
+
+  /// 신고버튼을 누를 시 신고 횟수를 올려주는 메서드이다.
 
   void report() {
     _post.reportCount++;

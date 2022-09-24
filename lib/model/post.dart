@@ -6,11 +6,12 @@
 /// [PostController] 생성자를 통해 객체를 생성하기 바란다.
 class Post {
   final bool isNotice;
-  final String title, data;
+  final String id, title, data;
   int likes, reportCount, leftDays;
 
   /// 포스트의 객체를 생성한다.
   ///
+  /// 포스트를 구분하기 위해 [id]가 반드시 표함되어야 한다.
   /// [title]에 제목이 들어가야 하며, [data]에는 포스트의 내용이 들어간다.
   /// [isNotice]를 `true`로 지정하므로써 공지용 포스트라 알릴 수 있다.
   ///
@@ -18,6 +19,9 @@ class Post {
   /// , 삭제까지 남은 기간을 보여주는 [leftDays]를 지정하지 않아도 된다.
   Post(
       {
+
+      /// 포스트의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
+      required this.id,
 
       /// 포스트의 제목 부분에 해당된다. `null`이 될 수 없다.
       required this.title,
