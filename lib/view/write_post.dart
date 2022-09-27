@@ -6,6 +6,7 @@ import 'package:highlight/languages/cpp.dart';
 import 'package:highlight/languages/dart.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:flutter_highlight/themes/atom-one-light.dart';
+import 'package:http/http.dart' as http;
 
 /// 게시글 작성을 누르면 나오는 다이얼로그 창이다.
 ///
@@ -191,7 +192,13 @@ class _WritePostDialogState extends State<WritePostDialog> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('취소')),
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              // TODO: json직렬화 방식으로 교체예정
+              http.post(Uri.parse('http://127.0.0.1:8080/posts'),
+                  headers: {'Content-Type': 'application/json'},
+                  body: '{"user": "sn30", "data": "${_controller.rawText}"}');
+              Navigator.of(context).pop();
+            },
             child: const Text('작성'))
       ],
     );

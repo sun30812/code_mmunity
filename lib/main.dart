@@ -21,7 +21,7 @@ class App extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MainPage(),
-        '/dashboard': (context) => const Dashboard(),
+        '/dashboard': (context) => const TestDashboard(),
       },
     );
   }
@@ -54,7 +54,7 @@ class MainPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(28.0),
               child: SubmitButton(
-                buttonTitle: '로그인 없이 살펴보기',
+                buttonTitle: '시작하기(시연 모드)',
                 iconData: Icons.login,
                 onClick: () {
                   Navigator.pushNamed(context, '/dashboard');

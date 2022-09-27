@@ -6,7 +6,7 @@
 /// [PostController] 생성자를 통해 객체를 생성하기 바란다.
 class Post {
   final bool isNotice;
-  final String id, title, data;
+  final String id, title, user, data;
   int likes, reportCount, leftDays;
 
   /// 포스트의 객체를 생성한다.
@@ -25,6 +25,9 @@ class Post {
 
       /// 포스트의 제목 부분에 해당된다. `null`이 될 수 없다.
       required this.title,
+
+      /// 포스트 작성자에 대한 정보에 해당한다. `null`이 될 수 없다.
+      required this.user,
 
       /// 포스트의 내용 부분에 해당된다. `null`이 될 수 없다.
       required this.data,

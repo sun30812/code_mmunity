@@ -4,9 +4,9 @@ import 'package:code_mmunity/view/style.dart';
 import 'package:code_mmunity/view/write_post.dart';
 import 'package:flutter/material.dart';
 
-/// 대시보드 화면이다.
+/// 시연용 대시보드 화면이다.
 ///
-/// 대시보드 화면의 상단 영역을 담당하며, 실질적인 게시글이 나타나는 영역은
+/// 정확하게는 시연용 대시보드 화면의 상단 영역을 담당하며, 실질적인 게시글이 나타나는 영역은
 /// [PostsPage]가 담당한다.
 ///
 /// 같이보기
@@ -14,9 +14,9 @@ import 'package:flutter/material.dart';
 /// - [PostsPage]
 /// - [PostCard]
 ///
-class Dashboard extends StatelessWidget {
-  /// 대시보드의 화면을 나타내는 생성자이다.
-  const Dashboard({Key? key}) : super(key: key);
+class TestDashboard extends StatelessWidget {
+  /// 시연용 대시보드의 화면을 나타내는 생성자이다.
+  const TestDashboard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +30,8 @@ class Dashboard extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
-              '로그인 하지 않음',
-              style: TextStyle(fontSize: 16.0),
+              '시연용',
+              style: TextStyle(fontSize: 16.0, color: Colors.redAccent),
             )
           ],
         ),
@@ -110,17 +110,33 @@ class _PostsPageState extends State<PostsPage> {
           ),
         ),
         Expanded(
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return GridView.count(
-                crossAxisCount: (constraints.maxWidth.toInt() - 200) ~/ 200,
-                childAspectRatio: 2.0,
-                children: List.generate(_dummyPosts.length, (index) {
-                  return PostCard(post: _dummyPosts[index]);
-                }),
-              );
-            },
-          ),
+          child: FutureBuilder<List<PostController>>(
+              future:
+                  PostController.fromServer(serverIp: 'http://127.0.0.1:8080'),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) print(snapshot.error);
+                if (snapshot.hasData) {
+                  return LayoutBuilder(
+                    builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                      List<PostController> posts =
+                          snapshot.data as List<PostController>;
+                      return GridView.count(
+                        crossAxisCount:
+                            (constraints.maxWidth.toInt() - 200) ~/ 200,
+                        childAspectRatio: 2.0,
+                        children: List.generate(posts.length, (index) {
+                          return PostCard(post: posts[index]);
+                        }),
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  );
+                }
+              }),
         )
       ],
     );

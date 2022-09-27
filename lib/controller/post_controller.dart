@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:code_mmunity/model/post.dart';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 /// [Post]객체를 생성하거나 객체의 내용을 수정할 때 사용되는 컨트롤러이다.
 ///
@@ -8,23 +12,66 @@ import 'package:code_mmunity/model/post.dart';
 class PostController {
   late final Post _post;
 
-  static List<PostController> fromServer({required String serverIp}) {
-    List<PostController> list = [];
-    // TODO: list 변수에 서버에서 받아와서 추가하는 과정 필요
-    return list;
+  /// 서버에서 [PostController]리스트를 생성하기 위해 존재하는 메서드이다.
+  ///
+  /// [serverIp]에 제공된 서버 주소를 통해 포스트를 가져오는 명령을 수행할 수 있도록 한다.
+  /// [compute()]메서드를 통해서 내부에서 독립적으로 처리할 수 있도록 하여 사용자에게는
+  /// 쾌적하게 동작하도록 설계되었다.
+  static Future<List<PostController>> fromServer(
+      {required String serverIp}) async {
+    final response = await http.get(Uri.parse('$serverIp/posts'));
+    return compute(_parsePosts, response.body);
   }
 
-  PostController(
-      {String id = 'null',
-      String title = 'Dummy',
-      String data = 'Dummy Data'}) {
+  /// json 리스트를 받아서 [PostController] 리스트로 변환하기 위해 사용되는 메서드이다.
+  ///
+  /// json리스트의 각 원소를 [PostController.fromJson()]메서드를 통해 변환해준다.
+  ///
+  /// ## 같이보기
+  /// - [PostController.fromJson]
+  /// - [PostController.fromServer]
+  static List<PostController> _parsePosts(String response) {
+    final List<dynamic> parsed = jsonDecode(response);
+    return parsed.map((json) => PostController.fromJson(json)).toList();
+  }
+
+  PostController({
+    String id = 'null',
+    String title = 'Dummy',
+    String user = 'dummy_user',
+    String data = 'Dummy Data',
+    int likes = 0,
+    int reportCount = 0,
+    int leftDays = 0,
+  }) {
     _post = Post(
         id: id,
         title: title,
+        user: user,
         data: data,
         likes: 0,
         reportCount: 0,
         leftDays: 0);
+  }
+
+  /// json으로된 값을 [PostController]로 역직렬화 시키기 위한 메서드이다.
+  ///
+  /// 대시보드에 들어가면 서버상에 존재하는 포스트를 보여주는데 이 때 사용되며, 리스트 형식의 json을
+  /// [List<PostController>]로 변환할 때 사용이 된다.
+  ///
+  /// ## 같이보기
+  ///
+  /// - [PostController]
+  /// - [Post]
+  factory PostController.fromJson(Map<String, dynamic> json) {
+    return PostController(
+        id: json['id'],
+        title: json['title'],
+        user: json['user'],
+        data: json['data'],
+        likes: json['likes'] as int,
+        reportCount: json['reportCount'] as int,
+        leftDays: json['leftDays'] as int);
   }
 
   /// 포스트의 id를 가져온다.
