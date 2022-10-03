@@ -70,12 +70,18 @@ class PostController {
         user: json['user'],
         data: json['data'],
         likes: json['likes'] as int,
-        reportCount: json['reportCount'] as int,
-        leftDays: json['leftDays'] as int);
+        reportCount: json['report_count'] as int,
+        leftDays: json['left_days'] as int);
   }
+
+  /// 작성한 포스트를 API서버로 전송하기 위한 형태로 변환하는 메서드이다.
+  Map<String, dynamic> toJson() => {'title': title, 'user': user, 'data': data};
 
   /// 포스트의 id를 가져온다.
   String get id => _post.id;
+
+  /// 포스트 작성자 정보를 가져온다.
+  String get user => _post.user;
 
   /// 포스트의 제목을 가져온다.
   String get title => _post.title;
@@ -87,19 +93,21 @@ class PostController {
   int get likes => _post.likes;
 
   /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
-  void incrementLikes() {
+  void incrementLikes() async {
+    http.Response result = await http
+        .post(Uri.parse('http://127.0.0.1:8080/add_likes'), body: _post.id);
     _post.likes++;
-    print('현재 공감 수: ${_post.likes}');
   }
 
   /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
-  void decrementLikes() {
+  void decrementLikes() async {
+    http.Response result = await http.post(
+        Uri.parse('http://127.0.0.1:8080/decrement_likes'),
+        body: _post.id);
     _post.likes--;
-    print('현재 공감 수: ${_post.likes}');
   }
 
   /// 신고버튼을 누를 시 신고 횟수를 올려주는 메서드이다.
-
   void report() {
     _post.reportCount++;
   }

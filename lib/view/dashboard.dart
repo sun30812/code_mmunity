@@ -114,8 +114,18 @@ class _PostsPageState extends State<PostsPage> {
               future:
                   PostController.fromServer(serverIp: 'http://127.0.0.1:8080'),
               builder: (context, snapshot) {
-                if (snapshot.hasError) print(snapshot.error);
-                if (snapshot.hasData) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.desktop_access_disabled_sharp),
+                        Text('서버에 접속할 수 없습니다.'),
+                        Text('\n개발자에게 다음 메세지를 보고하세요!: [${snapshot.error}]'),
+                      ],
+                    ),
+                  );
+                } else if (snapshot.hasData) {
                   return LayoutBuilder(
                     builder:
                         (BuildContext context, BoxConstraints constraints) {

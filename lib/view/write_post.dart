@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:code_mmunity/controller/post_controller.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:flutter/material.dart';
 import 'package:code_text_field/code_text_field.dart';
@@ -192,12 +194,29 @@ class _WritePostDialogState extends State<WritePostDialog> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('취소')),
         TextButton(
-            onPressed: () {
-              // TODO: json직렬화 방식으로 교체예정
-              http.post(Uri.parse('http://127.0.0.1:8080/posts'),
+            onPressed: () async {
+              if (_controller.text.isEmpty) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('코드가 작성되지 않았습니다.')));
+                return;
+              }
+              final PostController sendData = PostController(
+                  title: 'title', user: 'sn30', data: _controller.rawText);
+              http.Response result = await http.post(
+                  Uri.parse('http://127.0.0.1:8080/posts'),
                   headers: {'Content-Type': 'application/json'},
-                  body: '{"user": "sn30", "data": "${_controller.rawText}"}');
-              Navigator.of(context).pop();
+                  body: jsonEncode(sendData));
+              if (!mounted) {
+                return;
+              }
+              if (result.statusCode == 201) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
+                Navigator.of(context).pop();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('게시글이 업로드 되지 않았습니다.')));
+              }
             },
             child: const Text('작성'))
       ],
