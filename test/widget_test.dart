@@ -6,14 +6,14 @@ import 'package:code_mmunity/main.dart';
 void main() {
   group('메인 화면 테스트', () {
     testWidgets('메인 화면상 위젯 점검', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget( App());
 
       expect(find.text('Co{de}mmunity'), findsOneWidget);
       expect(find.byIcon(Icons.login), findsOneWidget);
     });
 
     testWidgets('대시보드 이동버튼 동작 확인', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget( App());
 
       await tester.tap(find.byIcon(Icons.login));
       await tester.pumpAndSettle();
@@ -23,18 +23,17 @@ void main() {
   });
   group('대시보드 테스트', () {
     testWidgets('대시보드 내 위젯 표시 여부 확인', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget( App());
 
       await tester.tap(find.byIcon(Icons.login));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
       expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
-      expect(find.byType(PostCard), findsNWidgets(6));
     });
 
     testWidgets('글쓰기 버튼 동작 여부 확인', (WidgetTester tester) async {
-      await tester.pumpWidget(const App());
+      await tester.pumpWidget( App());
 
       await tester.tap(find.byIcon(Icons.login));
       await tester.pumpAndSettle();

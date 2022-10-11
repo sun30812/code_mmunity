@@ -36,22 +36,58 @@ class PostController {
   }
 
   PostController({
-    String id = 'null',
-    String title = 'Dummy',
-    String user = 'dummy_user',
-    String data = 'Dummy Data',
+    int id = -1,
+    required String title,
+    required String uid,
+    required String userName,
+    required String data,
     int likes = 0,
     int reportCount = 0,
-    int leftDays = 0,
+    String createAt = '2022-10-11 21:29:30',
+    bool isNotice = false,
   }) {
-    _post = Post(
+    if (isNotice) {
+      _post = Post(
         id: id,
+        uid: uid,
         title: title,
-        user: user,
+        userName: userName,
         data: data,
-        likes: 0,
-        reportCount: 0,
-        leftDays: 0);
+        likes: likes,
+        reportCount: reportCount,
+        createAt: createAt,
+        isNotice: true,
+      );
+    } else {
+      _post = Post(
+        id: id,
+        uid: uid,
+        title: title,
+        userName: userName,
+        data: data,
+        likes: likes,
+        reportCount: reportCount,
+        createAt: createAt,
+      );
+    }
+  }
+
+  factory PostController.dummy() {
+    return PostController(
+      uid: 'g\$34d%j234',
+      title: 'Dummy',
+      userName: 'dummy_user',
+      data: 'Dummy Data',
+    );
+  }
+
+  factory PostController.notice({required String title, required String data}) {
+    return PostController(
+      uid: 'admin',
+      title: title,
+      userName: 'Admin',
+      data: data,
+    );
   }
 
   /// json으로된 값을 [PostController]로 역직렬화 시키기 위한 메서드이다.
@@ -65,23 +101,29 @@ class PostController {
   /// - [Post]
   factory PostController.fromJson(Map<String, dynamic> json) {
     return PostController(
-        id: json['id'],
-        title: json['title'],
-        user: json['user'],
-        data: json['data'],
-        likes: json['likes'] as int,
-        reportCount: json['report_count'] as int,
-        leftDays: json['left_days'] as int);
+      id: json['id'] as int,
+      uid: json['uid'],
+      title: json['title'],
+      userName: json['user_name'],
+      data: json['data'],
+      likes: json['likes'] as int,
+      reportCount: json['report_count'] as int,
+      createAt: json['create_at'],
+    );
   }
 
   /// 작성한 포스트를 API서버로 전송하기 위한 형태로 변환하는 메서드이다.
-  Map<String, dynamic> toJson() => {'title': title, 'user': user, 'data': data};
+  Map<String, dynamic> toJson() =>
+      {'uid': uid, 'title': title, 'user_name': userName, 'data': data};
 
   /// 포스트의 id를 가져온다.
-  String get id => _post.id;
+  int get id => _post.id;
+
+  /// 포스트의 UID를 가져온다.
+  String get uid => _post.uid;
 
   /// 포스트 작성자 정보를 가져온다.
-  String get user => _post.user;
+  String get userName => _post.userName;
 
   /// 포스트의 제목을 가져온다.
   String get title => _post.title;
@@ -94,16 +136,15 @@ class PostController {
 
   /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
   void incrementLikes() async {
-    http.Response result = await http
-        .post(Uri.parse('http://127.0.0.1:8080/add_likes'), body: _post.id);
+    await http.post(Uri.parse(
+        'http://localhost:3000/api/likes?id=${_post.id}&?mode=increment'));
     _post.likes++;
   }
 
   /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
   void decrementLikes() async {
-    http.Response result = await http.post(
-        Uri.parse('http://127.0.0.1:8080/decrement_likes'),
-        body: _post.id);
+    await http.post(Uri.parse(
+        'http://localhost:3000/api/likes?id=${_post.id}&?mode=decrement'));
     _post.likes--;
   }
 

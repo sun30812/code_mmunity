@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../controller/post_controller.dart';
 
@@ -121,58 +122,74 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLike = false;
+  bool isClicked = false;
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.post.title, style: const TextStyle(fontSize: 24.0)),
-                Text(widget.post.data),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.isNotice == null || !widget.isNotice!)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                          onPressed: () => setState(() {
-                                if (!isLike) {
-                                  widget.post.incrementLikes();
-                                  isLike = true;
-                                } else {
-                                  widget.post.decrementLikes();
-                                  isLike = false;
-                                }
-                              }),
-                          icon: Icon(
-                            isLike
-                                ? Icons.favorite
-                                : Icons.favorite_border_outlined,
-                            color: Colors.pinkAccent,
-                          )),
-                      const IconButton(
-                          onPressed: null, icon: Icon(Icons.share)),
-                      const IconButton(
-                          onPressed: null,
-                          icon: Icon(
-                            Icons.notification_important_outlined,
-                            color: Colors.amber,
-                          ))
-                    ],
-                  ),
-              ],
-            )
-          ],
+    return GestureDetector(
+      onTapDown: (_) => setState(() {
+        isClicked = true;
+      }),
+      onTapUp: (_) => setState(() {
+        isClicked = false;
+      }),
+      onTapCancel: () => setState(() {
+        isClicked = false;
+      }),
+      // onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('아직 구현되지 않았습니다.'))),
+      onTap: () => context.push('/postPage', extra: widget.post.id),
+      child: Card(
+        elevation: isClicked ? 2.5 : 1.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.post.title,
+                      style: const TextStyle(fontSize: 24.0)),
+                  Text(widget.post.data),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.isNotice == null || !widget.isNotice!)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                            onPressed: () => setState(() {
+                                  if (!isLike) {
+                                    widget.post.incrementLikes();
+                                    isLike = true;
+                                  } else {
+                                    widget.post.decrementLikes();
+                                    isLike = false;
+                                  }
+                                }),
+                            icon: Icon(
+                              isLike
+                                  ? Icons.favorite
+                                  : Icons.favorite_border_outlined,
+                              color: Colors.pinkAccent,
+                            )),
+                        const IconButton(
+                            onPressed: null, icon: Icon(Icons.share)),
+                        const IconButton(
+                            onPressed: null,
+                            icon: Icon(
+                              Icons.notification_important_outlined,
+                              color: Colors.amber,
+                            ))
+                      ],
+                    ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

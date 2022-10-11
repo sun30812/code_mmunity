@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:code_mmunity/controller/post_controller.dart';
 import 'package:code_mmunity/view/style.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:highlight/languages/rust.dart';
@@ -40,6 +41,11 @@ class WritePostDialog extends StatefulWidget {
 }
 
 class _WritePostDialogState extends State<WritePostDialog> {
+  /// 게시글의 제목에 사용되는 controller이다.
+  ///
+  /// 게시글 작성 창에서 게시글 제목 부분에 사용된다. 제목은 포스트 맨 위에 굵은 글씨로 나타난다.
+  final TextEditingController _title = TextEditingController();
+
   /// [CodeField]에 사용되는 controller 이다.
   ///
   /// [CodeField]위젯을 사용하기 위해서는 `controller`가 필요하다. `controller`를 통해
@@ -179,11 +185,21 @@ class _WritePostDialogState extends State<WritePostDialog> {
               ],
             ),
           ),
+          Row(
+            children: [
+              const Text('게시글 제목: '),
+              Expanded(
+                  child: TextField(
+                controller: _title,
+                expands: false,
+              ))
+            ],
+          ),
           SizedBox(
             width: 800,
             height: 500,
             child: CodeField(
-                textStyle: const TextStyle(fontFamily: 'JetBrainsMono'),
+                textStyle: const TextStyle(fontFamily: 'D2Coding'),
                 expands: true,
                 controller: _controller),
           ),
@@ -195,21 +211,26 @@ class _WritePostDialogState extends State<WritePostDialog> {
             child: const Text('취소')),
         TextButton(
             onPressed: () async {
-              if (_controller.text.isEmpty) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('코드가 작성되지 않았습니다.')));
+              if (_controller.text.isEmpty || _title.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('코드 또는 제목이 작성되지 않았습니다.')));
                 return;
               }
               final PostController sendData = PostController(
-                  title: 'title', user: 'sn30', data: _controller.rawText);
+                  uid: FirebaseAuth.instance.currentUser!.uid,
+                  title: _title.text,
+                  userName:
+                      FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',
+                  data: _controller.rawText);
               http.Response result = await http.post(
-                  Uri.parse('http://127.0.0.1:8080/posts'),
+                  Uri.parse('http://localhost:3000/api/posts'),
                   headers: {'Content-Type': 'application/json'},
                   body: jsonEncode(sendData));
               if (!mounted) {
                 return;
               }
               if (result.statusCode == 201) {
+                // TODO: 게시글 작성 시 새로고침하는 작업 필요
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
                 Navigator.of(context).pop();

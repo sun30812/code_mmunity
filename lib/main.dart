@@ -1,69 +1,71 @@
 import 'package:code_mmunity/view/dashboard.dart';
-import 'package:code_mmunity/view/style.dart';
+import 'package:code_mmunity/view/login.dart';
+import 'package:code_mmunity/view/post_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() => runApp(const App());
+void main() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  runApp(App());
+}
 
 /// 앱의 시작 부분에 해당되는 영역이다.
 ///
-/// 테마나 각 경로에 대한 설정만을 표현하며, 실질적인 화면은 [MainPage]로 구분
+/// 테마나 각 경로에 대한 설정만을 표현하며, 실질적인 화면은 [LoginPage]로 구분
 /// 되어있다.
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: _router,
+      title: '코드뮤니티',
       themeMode: ThemeMode.system,
       theme: ThemeData(useMaterial3: true),
       darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MainPage(),
-        '/dashboard': (context) => const TestDashboard(),
+    );
+  }
+
+  final GoRouter _router = GoRouter(routes: [
+    GoRoute(
+      path: '/',
+      redirect: (context, state) {
+        if (FirebaseAuth.instance.currentUser != null) {
+          return '/dashboard';
+        } else {
+          return null;
+        }
       },
-    );
-  }
-}
-
-/// 제일 먼저 앱을 실행하면 보이는 화면이다.
-class MainPage extends StatelessWidget {
-  const MainPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Co{de}mmunity',
-              style: TextStyle(
-                  fontFamily: 'JetBrainsMono',
-                  fontSize: 62.0,
-                  fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              '코드로 통하는 우리들의 커뮤니티.\n코드뮤니티에 오신걸 환영합니다.',
-              style: TextStyle(
-                fontSize: 32.0,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(28.0),
-              child: SubmitButton(
-                buttonTitle: '시작하기(시연 모드)',
-                iconData: Icons.login,
-                onClick: () {
-                  Navigator.pushNamed(context, '/dashboard');
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+      builder: (context, state) {
+        return const LoginPage();
+      },
+    ),
+    GoRoute(
+      path: '/dashboard',
+      redirect: (context, state) {
+        if (FirebaseAuth.instance.currentUser == null) {
+          return '/';
+        } else {
+          return null;
+        }
+      },
+      builder: (context, state) {
+        return const TestDashboard();
+      },
+    ),
+    GoRoute(
+      path: '/postPage',
+      builder: (context, state) {
+        return PostPage(
+          postId: state.extra == null ? 'None' : state.extra!.toString(),
+        );
+      },
+    ),
+  ]);
 }

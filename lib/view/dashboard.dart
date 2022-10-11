@@ -2,6 +2,7 @@ import 'package:code_mmunity/controller/post_controller.dart';
 import 'package:code_mmunity/model/post.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:code_mmunity/view/write_post.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 /// 시연용 대시보드 화면이다.
@@ -24,18 +25,25 @@ class TestDashboard extends StatelessWidget {
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
+          children: [
+            const Text(
               '대시보드',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
-              '시연용',
-              style: TextStyle(fontSize: 16.0, color: Colors.redAccent),
+              FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',
+              style: const TextStyle(fontSize: 16.0),
             )
           ],
         ),
         actions: [
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            icon: const Icon(Icons.power_settings_new_outlined),
+            tooltip: '로그아웃',
+          ),
           IconButton(
             onPressed: () {
               // TODO: 환경설정창으로 이동하는 동작 구현 필요
@@ -88,15 +96,8 @@ class PostsPage extends StatefulWidget {
 }
 
 class _PostsPageState extends State<PostsPage> {
-  final _demoInfoPost =
-      PostController(title: '시작하기', data: '우측 상단 연필 아이콘을 눌러 새로운 포스팅을 시작해보세요!');
-  final List<PostController> _dummyPosts = [
-    PostController(),
-    PostController(title: 'Dummy2'),
-    PostController(title: 'Dummy3'),
-    PostController(title: 'Dummy4'),
-    PostController(title: 'Dummy5'),
-  ];
+  final _demoInfoPost = PostController.notice(
+      title: '시작하기', data: '우측 상단 연필 아이콘을 눌러 새로운 포스팅을 시작해보세요!');
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -111,16 +112,16 @@ class _PostsPageState extends State<PostsPage> {
         ),
         Expanded(
           child: FutureBuilder<List<PostController>>(
-              future:
-                  PostController.fromServer(serverIp: 'http://127.0.0.1:8080'),
+              future: PostController.fromServer(
+                  serverIp: 'http://localhost:3000/api'),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.desktop_access_disabled_sharp),
-                        Text('서버에 접속할 수 없습니다.'),
+                        const Icon(Icons.desktop_access_disabled_sharp),
+                        const Text('서버에 접속할 수 없습니다.'),
                         Text('\n개발자에게 다음 메세지를 보고하세요!: [${snapshot.error}]'),
                       ],
                     ),
@@ -133,8 +134,8 @@ class _PostsPageState extends State<PostsPage> {
                           snapshot.data as List<PostController>;
                       return GridView.count(
                         crossAxisCount:
-                            (constraints.maxWidth.toInt() - 200) ~/ 200,
-                        childAspectRatio: 2.0,
+                            (constraints.maxWidth.toInt() - 300) ~/ 200,
+                        childAspectRatio: 1 / 0.5,
                         children: List.generate(posts.length, (index) {
                           return PostCard(post: posts[index]);
                         }),

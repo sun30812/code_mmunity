@@ -6,8 +6,8 @@
 /// [PostController] 생성자를 통해 객체를 생성하기 바란다.
 class Post {
   final bool isNotice;
-  final String id, title, user, data;
-  int likes, reportCount, leftDays;
+  final String uid, title, userName, data, createAt;
+  int id, likes, reportCount;
 
   /// 포스트의 객체를 생성한다.
   ///
@@ -17,30 +17,32 @@ class Post {
   ///
   /// 이 경우 공감 수를 나타내는 [likes], 신고 횟수에 해당하는 [reportCount]
   /// , 삭제까지 남은 기간을 보여주는 [leftDays]를 지정하지 않아도 된다.
-  Post(
-      {
+  Post({
+    /// 포스트의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
+    required this.id,
 
-      /// 포스트의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
-      required this.id,
+    /// 포스트의 작성자의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
+    required this.uid,
 
-      /// 포스트의 제목 부분에 해당된다. `null`이 될 수 없다.
-      required this.title,
+    /// 포스트의 제목 부분에 해당된다. `null`이 될 수 없다.
+    required this.title,
 
-      /// 포스트 작성자에 대한 정보에 해당한다. `null`이 될 수 없다.
-      required this.user,
+    /// 포스트 작성자 이름에 해당한다. `null`이 될 수 없다.
+    required this.userName,
 
-      /// 포스트의 내용 부분에 해당된다. `null`이 될 수 없다.
-      required this.data,
+    /// 포스트의 내용 부분에 해당된다. `null`이 될 수 없다.
+    required this.data,
 
-      /// 공지용 포스트인지 여부를 지정할 수 있다. 기본값은 `false`로 지정된다.
-      this.isNotice = false,
+    /// 공지용 포스트인지 여부를 지정할 수 있다. 기본값은 `false`로 지정된다.
+    this.isNotice = false,
 
-      /// 포스트가 공감받은 횟수에 해당된다. `null`이 될 수 없다.
-      required this.likes,
+    /// 포스트가 공감받은 횟수에 해당된다. `null`이 될 수 없다.
+    required this.likes,
 
-      /// 포스트가 신고당한 횟수에 해당된다. `null`이 될 수 없다.
-      required this.reportCount,
+    /// 포스트가 신고당한 횟수에 해당된다. `null`이 될 수 없다.
+    required this.reportCount,
 
-      /// 포스트가 지워지기까지 남은 일자에 해당된다. `null`이 될 수 없다.
-      required this.leftDays});
+    /// 포스트가 작성된 날짜 및 시간에 해당된다. `null`이 될 수 없다.
+    required this.createAt,
+  });
 }
