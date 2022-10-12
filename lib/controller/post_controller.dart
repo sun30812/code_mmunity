@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:code_mmunity/model/post.dart';
+import 'package:code_mmunity/model/types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,10 +17,21 @@ class PostController {
   /// [serverIp]에 제공된 서버 주소를 통해 포스트를 가져오는 명령을 수행할 수 있도록 한다.
   /// [compute()]메서드를 통해서 내부에서 독립적으로 처리할 수 있도록 하여 사용자에게는
   /// 쾌적하게 동작하도록 설계되었다.
-  static Future<List<PostController>> fromServer(
+  static Future<List<PostController>> fromServerAllPostList(
       {required String serverIp}) async {
     final response = await http.get(Uri.parse('$serverIp/posts'));
     return compute(_parsePosts, response.body);
+  }
+
+  /// 서버에서 [PostController]객체를 가죠오기 위해 존재하는 메서드이다.
+  ///
+  /// [serverIp]에 제공된 서버 주소를 통해 단일 포스트를 가져오는 명령을 수행할 수 있도록 한다.
+  /// [compute()]메서드를 통해서 내부에서 독립적으로 처리할 수 있도록 하여 사용자에게는
+  /// 쾌적하게 동작하도록 설계되었다.
+  static Future<PostController> fromServerPost(
+      {required String serverIp, required String postId}) async {
+    final response = await http.get(Uri.parse('$serverIp/posts/$postId'));
+    return compute(_parsePost, response.body);
   }
 
   /// json 리스트를 받아서 [PostController] 리스트로 변환하기 위해 사용되는 메서드이다.
@@ -29,10 +40,21 @@ class PostController {
   ///
   /// ## 같이보기
   /// - [PostController.fromJson]
-  /// - [PostController.fromServer]
+  /// - [PostController.fromServerAllPostList]
   static List<PostController> _parsePosts(String response) {
     final List<dynamic> parsed = jsonDecode(response);
     return parsed.map((json) => PostController.fromJson(json)).toList();
+  }
+
+  /// json을 받아서 [PostController]객체로 변환하기 위해 사용되는 메서드이다.
+  ///
+  /// json에서 받은 값을 [PostController]로 반환해준다.
+  ///
+  /// ## 같이보기
+  /// - [PostController.fromJson]
+  /// - [PostController.fromServerAllPostList]
+  static PostController _parsePost(String response) {
+    return PostController.fromJson(jsonDecode(response));
   }
 
   PostController({
@@ -40,36 +62,25 @@ class PostController {
     required String title,
     required String uid,
     required String userName,
+    required ProgrammingLanguage language,
     required String data,
     int likes = 0,
     int reportCount = 0,
     String createAt = '2022-10-11 21:29:30',
     bool isNotice = false,
   }) {
-    if (isNotice) {
-      _post = Post(
-        id: id,
-        uid: uid,
-        title: title,
-        userName: userName,
-        data: data,
-        likes: likes,
-        reportCount: reportCount,
-        createAt: createAt,
-        isNotice: true,
-      );
-    } else {
-      _post = Post(
-        id: id,
-        uid: uid,
-        title: title,
-        userName: userName,
-        data: data,
-        likes: likes,
-        reportCount: reportCount,
-        createAt: createAt,
-      );
-    }
+    _post = Post(
+      id: id,
+      uid: uid,
+      title: title,
+      userName: userName,
+      language: language,
+      data: data,
+      likes: likes,
+      reportCount: reportCount,
+      createAt: createAt,
+      isNotice: isNotice,
+    );
   }
 
   factory PostController.dummy() {
@@ -77,16 +88,34 @@ class PostController {
       uid: 'g\$34d%j234',
       title: 'Dummy',
       userName: 'dummy_user',
+      language: ProgrammingLanguage.rust,
       data: 'Dummy Data',
     );
   }
 
   factory PostController.notice({required String title, required String data}) {
     return PostController(
+      isNotice: true,
       uid: 'admin',
       title: title,
       userName: 'Admin',
+      language: ProgrammingLanguage.rust,
       data: data,
+    );
+  }
+
+  /// 아무 정보도 없는 포스트를 만들기 위한 메서드이다.
+  ///
+  /// 어떠한 문제로 인해 포스트를 넘겨줄 수 없을 때 `null`대신 넘길 수 있는 포스트를 만들어준다.
+  /// 프로그램 오류 없이 [uid]가 `null`로 설정되기 때문에 포스트 정보를 받는 입장에서는 이러한 포스트를
+  /// 받았을 때 적절한 처리가 가능해진다.
+  factory PostController.none() {
+    return PostController(
+      uid: 'null',
+      title: '',
+      userName: '',
+      language: ProgrammingLanguage.rust,
+      data: '',
     );
   }
 
@@ -105,6 +134,7 @@ class PostController {
       uid: json['uid'],
       title: json['title'],
       userName: json['user_name'],
+      language: ProgrammingLanguage.values.byName(json['language']),
       data: json['data'],
       likes: json['likes'] as int,
       reportCount: json['report_count'] as int,
@@ -113,8 +143,13 @@ class PostController {
   }
 
   /// 작성한 포스트를 API서버로 전송하기 위한 형태로 변환하는 메서드이다.
-  Map<String, dynamic> toJson() =>
-      {'uid': uid, 'title': title, 'user_name': userName, 'data': data};
+  Map<String, dynamic> toJson() => {
+        'uid': uid,
+        'title': title,
+        'user_name': userName,
+        'language': language.name,
+        'data': data
+      };
 
   /// 포스트의 id를 가져온다.
   int get id => _post.id;
@@ -127,6 +162,9 @@ class PostController {
 
   /// 포스트의 제목을 가져온다.
   String get title => _post.title;
+
+  /// 포스트에 작성된 프로그래밍 언어 종류를 가져온다..
+  ProgrammingLanguage get language => _post.language;
 
   /// 포스트 내용을 가져온다.
   String get data => _post.data;

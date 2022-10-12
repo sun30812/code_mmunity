@@ -4,6 +4,7 @@ import 'package:code_mmunity/view/style.dart';
 import 'package:code_mmunity/view/write_post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// 시연용 대시보드 화면이다.
 ///
@@ -15,9 +16,9 @@ import 'package:flutter/material.dart';
 /// - [PostsPage]
 /// - [PostCard]
 ///
-class TestDashboard extends StatelessWidget {
+class Dashboard extends StatelessWidget {
   /// 시연용 대시보드의 화면을 나타내는 생성자이다.
-  const TestDashboard({Key? key}) : super(key: key);
+  const Dashboard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,7 @@ class TestDashboard extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              FirebaseAuth.instance.signOut();
+              FirebaseAuth.instance.signOut().then((value) => context.go('/'));
             },
             icon: const Icon(Icons.power_settings_new_outlined),
             tooltip: '로그아웃',
@@ -62,10 +63,13 @@ class TestDashboard extends StatelessWidget {
               bool darkMode =
                   MediaQuery.of(context).platformBrightness == Brightness.dark;
               showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (BuildContext context) => WritePostDialog(
                         isDarkMode: darkMode,
-                      ));
+                      )).then((value) {
+                context.go('/posts');
+              });
             },
           )
         ],
@@ -112,20 +116,16 @@ class _PostsPageState extends State<PostsPage> {
         ),
         Expanded(
           child: FutureBuilder<List<PostController>>(
-              future: PostController.fromServer(
+              future: PostController.fromServerAllPostList(
                   serverIp: 'http://localhost:3000/api'),
               builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.desktop_access_disabled_sharp),
-                        const Text('서버에 접속할 수 없습니다.'),
-                        Text('\n개발자에게 다음 메세지를 보고하세요!: [${snapshot.error}]'),
-                      ],
-                    ),
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator.adaptive(),
                   );
+                }
+                else if (snapshot.hasError) {
+                  return ServerErrorPage(error: snapshot.error,);
                 } else if (snapshot.hasData) {
                   return LayoutBuilder(
                     builder:
@@ -143,9 +143,7 @@ class _PostsPageState extends State<PostsPage> {
                     },
                   );
                 } else {
-                  return const Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  );
+                  return ServerErrorPage(error: snapshot.error,);
                 }
               }),
         )

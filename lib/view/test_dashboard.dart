@@ -104,7 +104,7 @@ class _PostsPageState extends State<PostsPage> {
         ),
         Expanded(
           child: FutureBuilder<List<PostController>>(
-              future: PostController.fromServer(
+              future: PostController.fromServerAllPostList(
                   serverIp: 'http://localhost:7071/api'),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {

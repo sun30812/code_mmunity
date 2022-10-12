@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:code_mmunity/controller/post_controller.dart';
-import 'package:code_mmunity/view/style.dart';
+import 'package:code_mmunity/model/types.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:code_text_field/code_text_field.dart';
@@ -53,7 +53,7 @@ class _WritePostDialogState extends State<WritePostDialog> {
   late CodeController _controller;
 
   /// 포스트 작성 시 보여지는 프로그래밍 언어의 종류를 보여주는 변수이다.
-  late String _language;
+  late ProgrammingLanguage _language;
 
   /// 게시글 작성 다이얼로그를 연 직후인가 확인할 때 사용되는 변수이다.
   ///
@@ -62,12 +62,12 @@ class _WritePostDialogState extends State<WritePostDialog> {
   bool _isFirstRun = true;
 
   /// 프로그래밍 언어 목록이다. 언어를 추가 구현하기 위해서는 제일 먼저 해당 변수에 값을 추가해야 한다.
-  final List<String> _languages = ['자동 감지', 'Rust', 'C++', 'Dart'];
 
   /// [DropdownButton]을 위한 프로그래밍 언어 목록이다.
   ///
   /// [DropdownMenuItem]에 아이템으로 등록하기 위해서는 [DropdownMenuItem]으로 변환을 해주어야 한다. 이 작업을 위해 만든 변수이다.
-  final List<DropdownMenuItem> _menuItem = [];
+  final List<DropdownMenuItem> _menuItem = ProgrammingLanguage.values.map((value) =>
+      DropdownMenuItem(value: value,child: Text(value.stringValue),)).toList();
 
   /// 다크모드 여부에 따라 코드 에디터의 테마를 변경시키는 메서드이다.
   ///
@@ -80,63 +80,32 @@ class _WritePostDialogState extends State<WritePostDialog> {
     return atomOneDarkTheme;
   }
 
-  /// 코드 에디터에서 프로그래밍 언어를 자동으로 감지해주는 메서드이다.
-  ///
-  /// 코드 에디터에서 특정 키워드가 발견되면 프로그래밍 언어를 전환시킨다.
-  /// [text]매개변수는 사용자가 직접 전달하는 것이 아니다. [CodeController]의 [onChange]
-  /// 매개변수에 이 메서드를 전달하면 알아서 사용된다.
-  void languageDetector(String text) {
-    String newLanguage = _languages[0];
-
-    if (!(_menuItem[0].value == '자동 감지됨(C++)') &&
-        (text.contains('#include') ||
-            text.contains('printf') ||
-            text.contains('cout'))) {
-      setState(() {
-        newLanguage = '자동 감지됨(C++)';
-        _menuItem[0] =
-            DropdownMenuItem(value: newLanguage, child: Text(newLanguage));
-        if (_language.contains('자동 감지')) {
-          _language = newLanguage;
-        }
-      });
-    } else if (!(_menuItem[0].value == '자동 감지됨(Rust)') &&
-        (text.contains('fn'))) {
-      setState(() {
-        newLanguage = '자동 감지됨(Rust)';
-        _menuItem[0] =
-            DropdownMenuItem(value: newLanguage, child: Text(newLanguage));
-        if (_language.contains('자동 감지')) {
-          _language = newLanguage;
-        }
-      });
-    }
-  }
-
   /// 언어 선택에 따라 코드 에디터의 문법을 바꿔주는 메서드이다.
   ///
   /// [newLanguage]에는 `C++`과 같은 언어 이름이 들어간다. 언어 이름에 따라 코드에디터의 문법을 바꾸어 준다. 자동 감지로 설정된 경우
   /// 우측에 있는 언어에 맞는 문법 적용 버튼을 눌러야 한다.
-  void applyLanguage(String newLanguage) {
+  void applyLanguage(ProgrammingLanguage newLanguage) {
     _language = newLanguage;
-    if (newLanguage.contains('Rust')) {
-      _controller = CodeController(
-          language: rust,
-          theme: _getTheme(),
-          onChange: languageDetector,
-          text: _controller.text);
-    } else if (newLanguage.contains('C++')) {
-      _controller = CodeController(
-          language: cpp,
-          theme: _getTheme(),
-          onChange: languageDetector,
-          text: _controller.text);
-    } else if (newLanguage.contains('Dart')) {
-      _controller = CodeController(
-          language: dart,
-          theme: _getTheme(),
-          onChange: languageDetector,
-          text: _controller.text);
+    switch(newLanguage) {
+
+      case ProgrammingLanguage.rust:
+        _controller = CodeController(
+            language: rust,
+            theme: _getTheme(),
+            text: _controller.text);
+        break;
+      case ProgrammingLanguage.cpp:
+        _controller = CodeController(
+            language: cpp,
+            theme: _getTheme(),
+            text: _controller.text);
+        break;
+      case ProgrammingLanguage.dart:
+        _controller = CodeController(
+            language: dart,
+            theme: _getTheme(),
+            text: _controller.text);
+        break;
     }
   }
 
@@ -144,15 +113,9 @@ class _WritePostDialogState extends State<WritePostDialog> {
   void initState() {
     super.initState();
     if (_isFirstRun) {
-      _language = _languages[0];
-      for (String value in _languages) {
-        _menuItem.add(DropdownMenuItem(
-          value: value,
-          child: Text(value),
-        ));
-      }
+      _language = ProgrammingLanguage.rust;
       _controller = CodeController(
-          language: rust, theme: _getTheme(), onChange: languageDetector);
+          language: rust, theme: _getTheme());
       _isFirstRun = false;
     }
   }
@@ -174,14 +137,8 @@ class _WritePostDialogState extends State<WritePostDialog> {
                     value: _language,
                     items: _menuItem,
                     onChanged: (value) => setState(() {
-                          applyLanguage(value.toString());
+                          applyLanguage(value);
                         })),
-                if (_language.contains('자동 감지'))
-                  SubmitButton(
-                      buttonTitle: '언어에 맞는 문법 적용',
-                      onClick: () => setState(() {
-                            applyLanguage(_language);
-                          })),
               ],
             ),
           ),
@@ -221,6 +178,7 @@ class _WritePostDialogState extends State<WritePostDialog> {
                   title: _title.text,
                   userName:
                       FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',
+                  language: _language,
                   data: _controller.rawText);
               http.Response result = await http.post(
                   Uri.parse('http://localhost:3000/api/posts'),
@@ -230,13 +188,12 @@ class _WritePostDialogState extends State<WritePostDialog> {
                 return;
               }
               if (result.statusCode == 201) {
-                // TODO: 게시글 작성 시 새로고침하는 작업 필요
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
                 Navigator.of(context).pop();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('게시글이 업로드 되지 않았습니다.')));
+                     SnackBar(content: Text('게시글이 업로드 되지 않았습니다. [http 오류코드: ${result.statusCode}]')));
               }
             },
             child: const Text('작성'))

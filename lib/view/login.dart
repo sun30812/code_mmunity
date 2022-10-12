@@ -49,7 +49,7 @@ class LoginPage extends StatelessWidget {
                   child: SubmitButton(
                     buttonTitle: '로그인 없이 살펴보기',
                     iconData: Icons.view_carousel_outlined,
-                    onClick: () => context.go('/dashboard'),
+                    onClick: () => context.go('/posts'),
                   ),
                 ),
                 Padding(
@@ -58,7 +58,11 @@ class LoginPage extends StatelessWidget {
                     buttonTitle: 'Google로 로그인하기',
                     iconData: Icons.key_outlined,
                     onClick: () async {
-                      await signInWithGoogle();
+                      await signInWithGoogle().then((value) {
+                        if (value.user != null) {
+                          context.go('/posts');
+                        }
+                      });
                     },
                   ),
                 ),

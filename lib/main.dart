@@ -37,7 +37,7 @@ class App extends StatelessWidget {
       path: '/',
       redirect: (context, state) {
         if (FirebaseAuth.instance.currentUser != null) {
-          return '/dashboard';
+          return '/posts';
         } else {
           return null;
         }
@@ -47,7 +47,7 @@ class App extends StatelessWidget {
       },
     ),
     GoRoute(
-      path: '/dashboard',
+      path: '/posts',
       redirect: (context, state) {
         if (FirebaseAuth.instance.currentUser == null) {
           return '/';
@@ -56,7 +56,13 @@ class App extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return const TestDashboard();
+        return const Dashboard();
+      },
+    ),
+    GoRoute(
+      path: '/posts/:postId',
+      builder: (context, state) {
+        return PostPage(postId: state.params['postId']!);
       },
     ),
     GoRoute(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_highlight/themes/atom-one-light.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:flutter_highlight/flutter_highlight.dart';
 import '../controller/post_controller.dart';
 
 /// 기본 동작을 취하는 버튼이다.
@@ -108,12 +109,13 @@ class PostCard extends StatefulWidget {
   /// - 신고
   /// - 차단
   final bool? isNotice;
+  final bool disableTap;
 
   /// 포스트를 보여주는 카드이다.
   ///
   ///
   /// 만일 공지용 포스트로 제작하는 경우 [isNotice] 매개변수의 값을 `true`로 해야한다.
-  const PostCard({Key? key, required this.post, this.isNotice})
+  const PostCard({Key? key, required this.post, this.isNotice,  this.disableTap = false})
       : super(key: key);
 
   @override
@@ -126,17 +128,36 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() {
+      onTapDown: (_) {
+        if (widget.isNotice ?? false || widget.disableTap) {
+          return;
+        }
+        setState(() {
         isClicked = true;
-      }),
-      onTapUp: (_) => setState(() {
+      });
+      },
+      onTapUp: (_) {
+        if (widget.isNotice ?? false || widget.disableTap) {
+          return;
+        }
+        setState(() {
         isClicked = false;
-      }),
-      onTapCancel: () => setState(() {
+      });
+      },
+      onTapCancel: () {
+        if (widget.isNotice ?? false || widget.disableTap) {
+          return;
+        }
+        setState(() {
         isClicked = false;
-      }),
-      // onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('아직 구현되지 않았습니다.'))),
-      onTap: () => context.push('/postPage', extra: widget.post.id),
+      });
+      },
+      onTap: () {
+        if (widget.isNotice ?? false || widget.disableTap) {
+          return;
+        }
+        context.push('/posts/${widget.post.id}');
+      },
       child: Card(
         elevation: isClicked ? 2.5 : 1.0,
         child: Padding(
@@ -148,9 +169,34 @@ class _PostCardState extends State<PostCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.post.title,
-                      style: const TextStyle(fontSize: 24.0)),
-                  Text(widget.post.data),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(widget.post.title,
+                          style: const TextStyle(fontSize: 24.0)),
+                      if (!(widget.isNotice ?? false))
+                        Row(
+                          children: [
+                            const Icon(Icons.person_outline),
+                            Text(
+                              widget.post.userName,
+                              style: const TextStyle(
+                                fontSize: 20.0,
+                              ),
+                            )
+                          ],
+                        )
+                    ],
+                  ),
+                  if (widget.isNotice ?? false) ...[
+                    Text(widget.post.data)
+                  ] else ...[
+                    HighlightView(widget.post.data,
+                        language: widget.post.language.name,
+                        theme: atomOneLightTheme,
+                        textStyle: const TextStyle(
+                            fontSize: 18.0, fontFamily: 'D2Coding')),
+                  ]
                 ],
               ),
               Column(
@@ -190,6 +236,30 @@ class _PostCardState extends State<PostCard> {
               )
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ServerErrorPage extends StatelessWidget {
+  final dynamic error;
+  const ServerErrorPage({
+    required this.error,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.desktop_access_disabled_sharp),
+            const Text('서버에 접속할 수 없습니다.'),
+            Text('\n개발자에게 다음 메세지를 보고하세요!: [${error.toString()}]'),
+          ],
         ),
       ),
     );
