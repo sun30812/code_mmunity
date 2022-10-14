@@ -66,8 +66,12 @@ class _WritePostDialogState extends State<WritePostDialog> {
   /// [DropdownButton]을 위한 프로그래밍 언어 목록이다.
   ///
   /// [DropdownMenuItem]에 아이템으로 등록하기 위해서는 [DropdownMenuItem]으로 변환을 해주어야 한다. 이 작업을 위해 만든 변수이다.
-  final List<DropdownMenuItem> _menuItem = ProgrammingLanguage.values.map((value) =>
-      DropdownMenuItem(value: value,child: Text(value.stringValue),)).toList();
+  final List<DropdownMenuItem> _menuItem = ProgrammingLanguage.values
+      .map((value) => DropdownMenuItem(
+            value: value,
+            child: Text(value.stringValue),
+          ))
+      .toList();
 
   /// 다크모드 여부에 따라 코드 에디터의 테마를 변경시키는 메서드이다.
   ///
@@ -86,25 +90,18 @@ class _WritePostDialogState extends State<WritePostDialog> {
   /// 우측에 있는 언어에 맞는 문법 적용 버튼을 눌러야 한다.
   void applyLanguage(ProgrammingLanguage newLanguage) {
     _language = newLanguage;
-    switch(newLanguage) {
-
+    switch (newLanguage) {
       case ProgrammingLanguage.rust:
         _controller = CodeController(
-            language: rust,
-            theme: _getTheme(),
-            text: _controller.text);
+            language: rust, theme: _getTheme(), text: _controller.text);
         break;
       case ProgrammingLanguage.cpp:
         _controller = CodeController(
-            language: cpp,
-            theme: _getTheme(),
-            text: _controller.text);
+            language: cpp, theme: _getTheme(), text: _controller.text);
         break;
       case ProgrammingLanguage.dart:
         _controller = CodeController(
-            language: dart,
-            theme: _getTheme(),
-            text: _controller.text);
+            language: dart, theme: _getTheme(), text: _controller.text);
         break;
     }
   }
@@ -114,8 +111,7 @@ class _WritePostDialogState extends State<WritePostDialog> {
     super.initState();
     if (_isFirstRun) {
       _language = ProgrammingLanguage.rust;
-      _controller = CodeController(
-          language: rust, theme: _getTheme());
+      _controller = CodeController(language: rust, theme: _getTheme());
       _isFirstRun = false;
     }
   }
@@ -180,8 +176,10 @@ class _WritePostDialogState extends State<WritePostDialog> {
                       FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',
                   language: _language,
                   data: _controller.rawText);
+
               http.Response result = await http.post(
-                  Uri.parse('http://localhost:3000/api/posts'),
+                  Uri.parse(
+                      '${const String.fromEnvironment('API_SERVER_IP')}/api/posts'),
                   headers: {'Content-Type': 'application/json'},
                   body: jsonEncode(sendData));
               if (!mounted) {
@@ -192,8 +190,9 @@ class _WritePostDialogState extends State<WritePostDialog> {
                     const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
                 Navigator.of(context).pop();
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(content: Text('게시글이 업로드 되지 않았습니다. [http 오류코드: ${result.statusCode}]')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        '게시글이 업로드 되지 않았습니다. [http 오류코드: ${result.statusCode}]')));
               }
             },
             child: const Text('작성'))

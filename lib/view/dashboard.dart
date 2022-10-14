@@ -117,15 +117,14 @@ class _PostsPageState extends State<PostsPage> {
         Expanded(
           child: FutureBuilder<List<PostController>>(
               future: PostController.fromServerAllPostList(
-                  serverIp: 'http://localhost:3000/api'),
+                  serverIp: const String.fromEnvironment('API_SERVER_IP')),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator.adaptive(),
                   );
-                }
-                else if (snapshot.hasError) {
-                  return ServerErrorPage(error: snapshot.error,);
+                } else if (snapshot.hasError) {
+                  return ServerErrorPage(error: snapshot.error);
                 } else if (snapshot.hasData) {
                   return LayoutBuilder(
                     builder:
@@ -143,7 +142,9 @@ class _PostsPageState extends State<PostsPage> {
                     },
                   );
                 } else {
-                  return ServerErrorPage(error: snapshot.error,);
+                  return ServerErrorPage(
+                    error: snapshot.error,
+                  );
                 }
               }),
         )

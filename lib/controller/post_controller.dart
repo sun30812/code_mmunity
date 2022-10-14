@@ -19,8 +19,13 @@ class PostController {
   /// 쾌적하게 동작하도록 설계되었다.
   static Future<List<PostController>> fromServerAllPostList(
       {required String serverIp}) async {
-    final response = await http.get(Uri.parse('$serverIp/posts'));
-    return compute(_parsePosts, response.body);
+    try {
+      final response = await http.get(Uri.parse('$serverIp/api/posts'));
+
+      return compute(_parsePosts, response.body);
+    } catch (_) {
+      rethrow;
+    }
   }
 
   /// 서버에서 [PostController]객체를 가죠오기 위해 존재하는 메서드이다.
@@ -30,7 +35,7 @@ class PostController {
   /// 쾌적하게 동작하도록 설계되었다.
   static Future<PostController> fromServerPost(
       {required String serverIp, required String postId}) async {
-    final response = await http.get(Uri.parse('$serverIp/posts/$postId'));
+    final response = await http.get(Uri.parse('$serverIp/api/posts/$postId'));
     return compute(_parsePost, response.body);
   }
 
@@ -173,17 +178,17 @@ class PostController {
   int get likes => _post.likes;
 
   /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
-  void incrementLikes() async {
-    await http.post(Uri.parse(
-        'http://localhost:3000/api/likes?id=${_post.id}&?mode=increment'));
-    _post.likes++;
+  void incrementLikes(String serverIp) async {
+    await http
+        .post(Uri.parse('$serverIp/api/likes?id=${_post.id}&mode=Increment'))
+        .then((value) => _post.likes++);
   }
 
   /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
-  void decrementLikes() async {
-    await http.post(Uri.parse(
-        'http://localhost:3000/api/likes?id=${_post.id}&?mode=decrement'));
-    _post.likes--;
+  void decrementLikes(String serverIp) async {
+    await http
+        .post(Uri.parse('$serverIp/api/likes?id=${_post.id}&mode=Decrement'))
+        .then((value) => _post.likes--);
   }
 
   /// 신고버튼을 누를 시 신고 횟수를 올려주는 메서드이다.

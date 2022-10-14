@@ -9,7 +9,7 @@ import 'firebase_options.dart';
 
 void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  FirebaseAuth.instance.setPersistence(Persistence.SESSION);
   runApp(App());
 }
 
@@ -63,14 +63,6 @@ class App extends StatelessWidget {
       path: '/posts/:postId',
       builder: (context, state) {
         return PostPage(postId: state.params['postId']!);
-      },
-    ),
-    GoRoute(
-      path: '/postPage',
-      builder: (context, state) {
-        return PostPage(
-          postId: state.extra == null ? 'None' : state.extra!.toString(),
-        );
       },
     ),
   ]);

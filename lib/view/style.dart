@@ -110,12 +110,18 @@ class PostCard extends StatefulWidget {
   /// - 차단
   final bool? isNotice;
   final bool disableTap;
+  final bool isPage;
 
   /// 포스트를 보여주는 카드이다.
   ///
   ///
   /// 만일 공지용 포스트로 제작하는 경우 [isNotice] 매개변수의 값을 `true`로 해야한다.
-  const PostCard({Key? key, required this.post, this.isNotice,  this.disableTap = false})
+  const PostCard(
+      {Key? key,
+      required this.post,
+      this.isNotice,
+      this.disableTap = false,
+      this.isPage = false})
       : super(key: key);
 
   @override
@@ -133,30 +139,30 @@ class _PostCardState extends State<PostCard> {
           return;
         }
         setState(() {
-        isClicked = true;
-      });
+          isClicked = true;
+        });
       },
       onTapUp: (_) {
         if (widget.isNotice ?? false || widget.disableTap) {
           return;
         }
         setState(() {
-        isClicked = false;
-      });
+          isClicked = false;
+        });
       },
       onTapCancel: () {
         if (widget.isNotice ?? false || widget.disableTap) {
           return;
         }
         setState(() {
-        isClicked = false;
-      });
+          isClicked = false;
+        });
       },
       onTap: () {
         if (widget.isNotice ?? false || widget.disableTap) {
           return;
         }
-        context.push('/posts/${widget.post.id}');
+        context.push('/posts/${widget.post.id}', extra: widget.post.title);
       },
       child: Card(
         elevation: isClicked ? 2.5 : 1.0,
@@ -206,30 +212,72 @@ class _PostCardState extends State<PostCard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                            onPressed: () => setState(() {
-                                  if (!isLike) {
-                                    widget.post.incrementLikes();
-                                    isLike = true;
-                                  } else {
-                                    widget.post.decrementLikes();
-                                    isLike = false;
-                                  }
-                                }),
-                            icon: Icon(
-                              isLike
-                                  ? Icons.favorite
-                                  : Icons.favorite_border_outlined,
-                              color: Colors.pinkAccent,
-                            )),
-                        const IconButton(
-                            onPressed: null, icon: Icon(Icons.share)),
-                        const IconButton(
-                            onPressed: null,
-                            icon: Icon(
-                              Icons.notification_important_outlined,
-                              color: Colors.amber,
-                            ))
+                        if (widget.isPage) ...[
+                          OutlinedButton(
+                              onPressed: () => setState(() {
+                                    if (!isLike) {
+                                      widget.post.incrementLikes(
+                                          const String.fromEnvironment(
+                                              'API_SERVER_IP'));
+                                      isLike = true;
+                                    } else {
+                                      widget.post.decrementLikes(
+                                          const String.fromEnvironment(
+                                              'API_SERVER_IP'));
+                                      isLike = false;
+                                    }
+                                  }),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Icon(
+                                    isLike
+                                        ? Icons.favorite
+                                        : Icons.favorite_border_outlined,
+                                    color: Colors.pinkAccent,
+                                  ),
+                                  Text(widget.post.likes.toString())
+                                ],
+                              )),
+                          const IconButton(
+                              onPressed: null, icon: Icon(Icons.share)),
+                          const IconButton(
+                              onPressed: null,
+                              icon: Icon(
+                                Icons.notification_important_outlined,
+                                color: Colors.amber,
+                              ))
+                        ] else ...[
+                          IconButton(
+                              onPressed: () => setState(() {
+                                    if (!isLike) {
+                                      widget.post.incrementLikes(
+                                          const String.fromEnvironment(
+                                              'API_SERVER_IP'));
+                                      isLike = true;
+                                    } else {
+                                      widget.post.decrementLikes(
+                                          const String.fromEnvironment(
+                                              'API_SERVER_IP'));
+                                      isLike = false;
+                                    }
+                                  }),
+                              icon: Icon(
+                                isLike
+                                    ? Icons.favorite
+                                    : Icons.favorite_border_outlined,
+                                color: Colors.pinkAccent,
+                              )),
+                          const IconButton(
+                              onPressed: null, icon: Icon(Icons.share)),
+                          const IconButton(
+                              onPressed: null,
+                              icon: Icon(
+                                Icons.notification_important_outlined,
+                                color: Colors.amber,
+                              ))
+                        ]
                       ],
                     ),
                 ],
