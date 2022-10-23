@@ -68,7 +68,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
+              const Text(
                 ' [미리보기 버전]',
                 style: TextStyle(
                     fontFamily: 'D2Coding',

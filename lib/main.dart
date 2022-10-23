@@ -1,6 +1,7 @@
 import 'package:code_mmunity/view/dashboard.dart';
 import 'package:code_mmunity/view/login.dart';
 import 'package:code_mmunity/view/post_page.dart';
+import 'package:code_mmunity/view/style.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -32,38 +33,40 @@ class App extends StatelessWidget {
     );
   }
 
-  final GoRouter _router = GoRouter(routes: [
-    GoRoute(
-      path: '/',
-      redirect: (context, state) {
-        if (FirebaseAuth.instance.currentUser != null) {
-          return '/posts';
-        } else {
-          return null;
-        }
-      },
-      builder: (context, state) {
-        return const LoginPage();
-      },
-    ),
-    GoRoute(
-      path: '/posts',
-      redirect: (context, state) {
-        if (FirebaseAuth.instance.currentUser == null) {
-          return '/';
-        } else {
-          return null;
-        }
-      },
-      builder: (context, state) {
-        return const Dashboard();
-      },
-    ),
-    GoRoute(
-      path: '/posts/:postId',
-      builder: (context, state) {
-        return PostPage(postId: state.params['postId']!);
-      },
-    ),
-  ]);
+  final GoRouter _router = GoRouter(
+      errorBuilder: (context, state) => const NotFoundErrorPage(),
+      routes: [
+        GoRoute(
+          path: '/',
+          redirect: (context, state) {
+            if (FirebaseAuth.instance.currentUser != null) {
+              return '/posts';
+            } else {
+              return null;
+            }
+          },
+          builder: (context, state) {
+            return const LoginPage();
+          },
+        ),
+        GoRoute(
+          path: '/posts',
+          redirect: (context, state) {
+            if (FirebaseAuth.instance.currentUser == null) {
+              return '/';
+            } else {
+              return null;
+            }
+          },
+          builder: (context, state) {
+            return const Dashboard();
+          },
+        ),
+        GoRoute(
+          path: '/posts/:postId',
+          builder: (context, state) {
+            return PostPage(postId: state.params['postId']!);
+          },
+        ),
+      ]);
 }

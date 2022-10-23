@@ -36,6 +36,9 @@ class PostController {
   static Future<PostController> fromServerPost(
       {required String serverIp, required String postId}) async {
     final response = await http.get(Uri.parse('$serverIp/api/posts/$postId'));
+    if (response.statusCode == 404) {
+      return PostController.none();
+    }
     return compute(_parsePost, response.body);
   }
 

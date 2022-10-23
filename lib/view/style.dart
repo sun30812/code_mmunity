@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_highlight/themes/atom-one-light.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
@@ -133,6 +135,9 @@ class _PostCardState extends State<PostCard> {
   bool isClicked = false;
   @override
   Widget build(BuildContext context) {
+    if (widget.post.userId == 'null') {
+      return const NotFoundPostErrorPage();
+    }
     return GestureDetector(
       onTapDown: (_) {
         if (widget.isNotice ?? false || widget.disableTap) {
@@ -247,7 +252,18 @@ class _PostCardState extends State<PostCard> {
                               icon: Icon(
                                 Icons.notification_important_outlined,
                                 color: Colors.amber,
-                              ))
+                              )),
+                          if ((FirebaseAuth.instance.currentUser != null) &&
+                              (widget.post.userId ==
+                                  FirebaseAuth.instance.currentUser!.uid))
+                            OutlinedButton(
+                                onPressed: null,
+                                child: Row(
+                                  children: const [
+                                    Icon(Icons.delete_outline),
+                                    Text('게시글 삭제')
+                                  ],
+                                ))
                         ] else ...[
                           IconButton(
                               onPressed: () => setState(() {
@@ -309,6 +325,152 @@ class ServerErrorPage extends StatelessWidget {
             Text('\n개발자에게 다음 메세지를 보고하세요!: [${error.toString()}]'),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 존재하지 않는 페이지를 방문할 시 화면이다.
+class NotFoundErrorPage extends StatelessWidget {
+  const NotFoundErrorPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('오류: 존재하지 않는 페이지'),
+          backgroundColor: Colors.orangeAccent,
+        ),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '404 Not Found',
+                  style: Theme.of(context).textTheme.headline3,
+                ),
+              ),
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '현재 존재하지 않는 페이지로 접속하셨습니다.\n아래와 같은 이유로 해당 문제가 발생하였습니다.',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const ListTile(
+                      leading: Icon(Icons.link_off_outlined),
+                      title: Text('주소창에 존재하지 않는 주소를 작성한 경우'),
+                    ),
+                    const ListTile(
+                      leading: Icon(Icons.toggle_off_outlined),
+                      title: Text('개발자가 아직 구현하지 않은 기능에 접근한 경우'),
+                    ),
+                    const ListTile(
+                      leading: Icon(Icons.adb_outlined),
+                      title: Text('개발자가 실수한 경우'),
+                    ),
+                    const Divider(),
+                    const Text('아래 버튼을 눌러 조치를 취하세요'),
+                    ListTile(
+                      leading: const Icon(Icons.mail_outline),
+                      title: const Text('(오류인 것으로 보인다면) 개발자에게 이메일 보내기'),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('개발자에게 메일 보내기'),
+                              content: Column(
+                                children: [
+                                  const Text(
+                                      '아래 주소로 현재 사이트 주소와 문제 사항을 보내주세요.\n'),
+                                  Row(
+                                    children: [
+                                      const Text(
+                                          '이메일 주소: orgsun30812+code_mmunity@gmail.com'),
+                                      IconButton(
+                                          onPressed: () => Clipboard.setData(
+                                                  const ClipboardData(
+                                                      text:
+                                                          'orgsun30812+code_mmunity@gmail.com'))
+                                              .then((value) => ScaffoldMessenger
+                                                      .of(context)
+                                                  .showSnackBar(const SnackBar(
+                                                      content: Text(
+                                                          '이메일 주소가 복사되었습니다.')))),
+                                          icon: const Icon(Icons.copy))
+                                    ],
+                                  )
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('확인'))
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.home_outlined),
+                      title: const Text('대시보드로 이동'),
+                      onTap: () => context.go('/'),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ));
+  }
+}
+
+/// 존재하지 않는 포스트를 방문할 시 화면이다.
+class NotFoundPostErrorPage extends StatelessWidget {
+  const NotFoundPostErrorPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              '포스트를 찾을 수 없음',
+              style: Theme.of(context).textTheme.headline5,
+            ),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '현재 존재하지 않는 포스트에 접근하셨습니다.\n이 문제는 아래 이유들로 인해 발생합니다.',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const ListTile(
+                  leading: Icon(Icons.link_off_outlined),
+                  title: Text('주소창에 존재하지 않는 포스트 ID를 작성한 경우'),
+                ),
+                const ListTile(
+                  leading: Icon(Icons.delete_outline),
+                  title: Text('포스트 작성자가 글을 지운 경우'),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
