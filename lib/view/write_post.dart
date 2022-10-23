@@ -170,7 +170,7 @@ class _WritePostDialogState extends State<WritePostDialog> {
                 return;
               }
               final PostController sendData = PostController(
-                  uid: FirebaseAuth.instance.currentUser!.uid,
+                  userId: FirebaseAuth.instance.currentUser!.uid,
                   title: _title.text,
                   userName:
                       FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',

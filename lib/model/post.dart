@@ -11,14 +11,12 @@ class Post {
   final bool isNotice;
 
   /// 포스트의 작성자의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
-  final String uid;
+  final String userId;
 
   /// 포스트의 제목 부분에 해당된다. `null`이 될 수 없다.
   final String title;
 
   /// 포스트 작성자 이름에 해당한다. `null`이 될 수 없다.
-  ///
-  /// **주의!: 이 필드는 곧 사라집니다.**
   final String userName;
 
   /// 포스트에 기재된 프로그래밍 언어 이름이다.. `null`이 될 수 없다.
@@ -51,7 +49,7 @@ class Post {
   /// 지정하지 않아도 된다.
   Post({
     required this.id,
-    required this.uid,
+    required this.userId,
     required this.title,
     required this.userName,
     required this.language,

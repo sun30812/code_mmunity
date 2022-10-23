@@ -65,7 +65,7 @@ class PostController {
   PostController({
     int id = -1,
     required String title,
-    required String uid,
+    required String userId,
     required String userName,
     required ProgrammingLanguage language,
     required String data,
@@ -76,7 +76,7 @@ class PostController {
   }) {
     _post = Post(
       id: id,
-      uid: uid,
+      userId: userId,
       title: title,
       userName: userName,
       language: language,
@@ -90,7 +90,7 @@ class PostController {
 
   factory PostController.dummy() {
     return PostController(
-      uid: 'g\$34d%j234',
+      userId: 'g\$34d%j234',
       title: 'Dummy',
       userName: 'dummy_user',
       language: ProgrammingLanguage.rust,
@@ -101,7 +101,7 @@ class PostController {
   factory PostController.notice({required String title, required String data}) {
     return PostController(
       isNotice: true,
-      uid: 'admin',
+      userId: 'admin',
       title: title,
       userName: 'Admin',
       language: ProgrammingLanguage.rust,
@@ -112,11 +112,11 @@ class PostController {
   /// 아무 정보도 없는 포스트를 만들기 위한 메서드이다.
   ///
   /// 어떠한 문제로 인해 포스트를 넘겨줄 수 없을 때 `null`대신 넘길 수 있는 포스트를 만들어준다.
-  /// 프로그램 오류 없이 [uid]가 `null`로 설정되기 때문에 포스트 정보를 받는 입장에서는 이러한 포스트를
+  /// 프로그램 오류 없이 [userId]가 `null`로 설정되기 때문에 포스트 정보를 받는 입장에서는 이러한 포스트를
   /// 받았을 때 적절한 처리가 가능해진다.
   factory PostController.none() {
     return PostController(
-      uid: 'null',
+      userId: 'null',
       title: '',
       userName: '',
       language: ProgrammingLanguage.rust,
@@ -135,8 +135,8 @@ class PostController {
   /// - [Post]
   factory PostController.fromJson(Map<String, dynamic> json) {
     return PostController(
-      id: json['id'] as int,
-      uid: json['uid'],
+      id: json['post_id'] as int,
+      userId: json['user_id'],
       title: json['title'],
       userName: json['user_name'],
       language: ProgrammingLanguage.values.byName(json['language']),
@@ -149,9 +149,8 @@ class PostController {
 
   /// 작성한 포스트를 API서버로 전송하기 위한 형태로 변환하는 메서드이다.
   Map<String, dynamic> toJson() => {
-        'uid': uid,
+        'user_id': userId,
         'title': title,
-        'user_name': userName,
         'language': language.name,
         'data': data
       };
@@ -160,7 +159,7 @@ class PostController {
   int get id => _post.id;
 
   /// 포스트의 UID를 가져온다.
-  String get uid => _post.uid;
+  String get userId => _post.userId;
 
   /// 포스트 작성자 정보를 가져온다.
   String get userName => _post.userName;
@@ -180,14 +179,16 @@ class PostController {
   /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
   void incrementLikes(String serverIp) async {
     await http
-        .post(Uri.parse('$serverIp/api/likes?id=${_post.id}&mode=Increment'))
+        .post(
+            Uri.parse('$serverIp/api/likes?post_id=${_post.id}&mode=Increment'))
         .then((value) => _post.likes++);
   }
 
   /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
   void decrementLikes(String serverIp) async {
     await http
-        .post(Uri.parse('$serverIp/api/likes?id=${_post.id}&mode=Decrement'))
+        .post(
+            Uri.parse('$serverIp/api/likes?post_id=${_post.id}&mode=Decrement'))
         .then((value) => _post.likes--);
   }
 

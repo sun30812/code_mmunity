@@ -1,3 +1,4 @@
+import 'package:code_mmunity/controller/post_user_controller.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -102,7 +103,10 @@ class LoginPage extends StatelessWidget {
                       onClick: () async {
                         await signInWithGoogle().then((value) {
                           if (value.user != null) {
-                            context.go('/posts');
+                            PostUserController(value.user!)
+                                .registerUser(const String.fromEnvironment(
+                                    'API_SERVER_IP'))
+                                .then((_) => context.go('/posts'));
                           }
                         });
                       },
