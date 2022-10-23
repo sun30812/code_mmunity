@@ -100,6 +100,21 @@ class PostsPage extends StatefulWidget {
 }
 
 class _PostsPageState extends State<PostsPage> {
+  /// 화면 크기에 맞춰 한 행에 표시할 포스트 카드의 개수를 반환하는 메서드
+  ///
+  /// 화면 크기 별로 알맞은 크기의 카드를 제공하기 위해 화면의 너비를 [size]로 넘겨받아서
+  /// 구한다.
+  int getCrossAxisCount(int size) {
+    if (size < 300) {
+      return 1;
+    } else if (size >= 300 && size < 550) {
+      return 2;
+    } else if (size >= 550 && size < 900) {
+      return 3;
+    }
+    return 4;
+  }
+
   final _demoInfoPost = PostController.notice(
       title: '시작하기', data: '우측 상단 연필 아이콘을 눌러 새로운 포스팅을 시작해보세요!');
   @override
@@ -132,8 +147,8 @@ class _PostsPageState extends State<PostsPage> {
                       List<PostController> posts =
                           snapshot.data as List<PostController>;
                       return GridView.count(
-                        crossAxisCount:
-                            (constraints.maxWidth.toInt() - 300) ~/ 200,
+                        crossAxisCount: getCrossAxisCount(
+                            constraints.maxWidth.toInt() - 300),
                         childAspectRatio: 1 / 0.5,
                         children: List.generate(posts.length, (index) {
                           return PostCard(post: posts[index]);

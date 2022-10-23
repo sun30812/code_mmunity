@@ -11,7 +11,6 @@ class LoginPage extends StatelessWidget {
   Future<UserCredential> signInWithGoogle() async {
     GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
-    // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithPopup(googleProvider);
   }
 
@@ -22,6 +21,7 @@ class LoginPage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -66,14 +66,14 @@ class LoginPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: Colors.blueAccent),
                   ),
-                  Text(
-                    ' [미리보기 버전]',
-                    style: TextStyle(
-                        fontFamily: 'D2Coding',
-                        fontSize: 31.0,
-                        fontWeight: FontWeight.bold),
-                  ),
                 ],
+              ),
+              Text(
+                ' [미리보기 버전]',
+                style: TextStyle(
+                    fontFamily: 'D2Coding',
+                    fontSize: 31.0,
+                    fontWeight: FontWeight.bold),
               ),
               const Text(
                 '코드로 통하는 우리들의 커뮤니티.\n코드뮤니티에 오신걸 환영합니다.',
