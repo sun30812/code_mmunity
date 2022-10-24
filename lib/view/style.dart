@@ -1,3 +1,4 @@
+import 'package:code_mmunity/model/types.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -131,8 +132,16 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  bool isLike = false;
-  bool isClicked = false;
+  bool _isLike = false;
+  bool _isClicked = false;
+  late int _likes;
+
+  @override
+  void initState() {
+    super.initState();
+    _likes = widget.post.likes;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.post.userId == 'null') {
@@ -144,7 +153,7 @@ class _PostCardState extends State<PostCard> {
           return;
         }
         setState(() {
-          isClicked = true;
+          _isClicked = true;
         });
       },
       onTapUp: (_) {
@@ -152,7 +161,7 @@ class _PostCardState extends State<PostCard> {
           return;
         }
         setState(() {
-          isClicked = false;
+          _isClicked = false;
         });
       },
       onTapCancel: () {
@@ -160,7 +169,7 @@ class _PostCardState extends State<PostCard> {
           return;
         }
         setState(() {
-          isClicked = false;
+          _isClicked = false;
         });
       },
       onTap: () {
@@ -170,7 +179,7 @@ class _PostCardState extends State<PostCard> {
         context.push('/posts/${widget.post.id}', extra: widget.post.title);
       },
       child: Card(
-        elevation: isClicked ? 2.5 : 1.0,
+        elevation: _isClicked ? 2.5 : 1.0,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -186,15 +195,31 @@ class _PostCardState extends State<PostCard> {
                       Text(widget.post.title,
                           style: const TextStyle(fontSize: 24.0)),
                       if (!(widget.isNotice ?? false))
-                        Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.person_outline),
-                            Text(
-                              widget.post.userName,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                              ),
-                            )
+                            Row(
+                              children: [
+                                Icon(Icons.edit_note_outlined),
+                                Text(
+                                  widget.post.language.stringValue,
+                                  style: const TextStyle(
+                                    fontSize: 20.0,
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                const Icon(Icons.person_outline),
+                                Text(
+                                  widget.post.userName,
+                                  style: const TextStyle(
+                                    fontSize: 20.0,
+                                  ),
+                                )
+                              ],
+                            ),
                           ],
                         )
                     ],
@@ -215,85 +240,124 @@ class _PostCardState extends State<PostCard> {
                 children: [
                   if (widget.isNotice == null || !widget.isNotice!)
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (widget.isPage) ...[
-                          OutlinedButton(
-                              onPressed: () => setState(() {
-                                    if (!isLike) {
-                                      widget.post.incrementLikes(
-                                          const String.fromEnvironment(
-                                              'API_SERVER_IP'));
-                                      isLike = true;
-                                    } else {
-                                      widget.post.decrementLikes(
-                                          const String.fromEnvironment(
-                                              'API_SERVER_IP'));
-                                      isLike = false;
-                                    }
-                                  }),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Icon(
-                                    isLike
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_month_outlined),
+                            if (widget.isPage)
+                              Text(widget.post.createAt)
+                            else
+                              Text(widget.post.createAt.substring(0, 10))
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (widget.isPage) ...[
+                              OutlinedButton(
+                                  onPressed: () => setState(() {
+                                        if (!_isLike) {
+                                          widget.post.incrementLikes(
+                                              const String.fromEnvironment(
+                                                  'API_SERVER_IP'));
+                                          _isLike = true;
+                                          _likes++;
+                                        } else {
+                                          widget.post.decrementLikes(
+                                              const String.fromEnvironment(
+                                                  'API_SERVER_IP'));
+                                          _isLike = false;
+                                          _likes--;
+                                        }
+                                      }),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(
+                                        _isLike
+                                            ? Icons.favorite
+                                            : Icons.favorite_border_outlined,
+                                        color: Colors.pinkAccent,
+                                      ),
+                                      Text(_likes.toString())
+                                    ],
+                                  )),
+                              const IconButton(
+                                  onPressed: null, icon: Icon(Icons.share)),
+                              const IconButton(
+                                  onPressed: null,
+                                  icon: Icon(
+                                    Icons.notification_important_outlined,
+                                    color: Colors.amber,
+                                  )),
+                              if ((FirebaseAuth.instance.currentUser != null) &&
+                                  (widget.post.userId ==
+                                      FirebaseAuth.instance.currentUser!.uid))
+                                OutlinedButton(
+                                    style: ButtonStyle(),
+                                    onPressed: () => showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: Text('삭제 안내'),
+                                            content: Text(
+                                                '정말로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: Text('취소')),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    widget.post.deletePost(
+                                                        const String
+                                                                .fromEnvironment(
+                                                            'API_SERVER_IP'));
+                                                    context.go('/');
+                                                  },
+                                                  child: Text('확인')),
+                                            ],
+                                          ),
+                                        ),
+                                    child: Row(
+                                      children: const [
+                                        Icon(Icons.delete_outline),
+                                        Text('게시글 삭제')
+                                      ],
+                                    ))
+                            ] else ...[
+                              IconButton(
+                                  onPressed: () => setState(() {
+                                        if (!_isLike) {
+                                          widget.post.incrementLikes(
+                                              const String.fromEnvironment(
+                                                  'API_SERVER_IP'));
+                                          _isLike = true;
+                                        } else {
+                                          widget.post.decrementLikes(
+                                              const String.fromEnvironment(
+                                                  'API_SERVER_IP'));
+                                          _isLike = false;
+                                        }
+                                      }),
+                                  icon: Icon(
+                                    _isLike
                                         ? Icons.favorite
                                         : Icons.favorite_border_outlined,
                                     color: Colors.pinkAccent,
-                                  ),
-                                  Text(widget.post.likes.toString())
-                                ],
-                              )),
-                          const IconButton(
-                              onPressed: null, icon: Icon(Icons.share)),
-                          const IconButton(
-                              onPressed: null,
-                              icon: Icon(
-                                Icons.notification_important_outlined,
-                                color: Colors.amber,
-                              )),
-                          if ((FirebaseAuth.instance.currentUser != null) &&
-                              (widget.post.userId ==
-                                  FirebaseAuth.instance.currentUser!.uid))
-                            OutlinedButton(
-                                onPressed: null,
-                                child: Row(
-                                  children: const [
-                                    Icon(Icons.delete_outline),
-                                    Text('게시글 삭제')
-                                  ],
-                                ))
-                        ] else ...[
-                          IconButton(
-                              onPressed: () => setState(() {
-                                    if (!isLike) {
-                                      widget.post.incrementLikes(
-                                          const String.fromEnvironment(
-                                              'API_SERVER_IP'));
-                                      isLike = true;
-                                    } else {
-                                      widget.post.decrementLikes(
-                                          const String.fromEnvironment(
-                                              'API_SERVER_IP'));
-                                      isLike = false;
-                                    }
-                                  }),
-                              icon: Icon(
-                                isLike
-                                    ? Icons.favorite
-                                    : Icons.favorite_border_outlined,
-                                color: Colors.pinkAccent,
-                              )),
-                          const IconButton(
-                              onPressed: null, icon: Icon(Icons.share)),
-                          const IconButton(
-                              onPressed: null,
-                              icon: Icon(
-                                Icons.notification_important_outlined,
-                                color: Colors.amber,
-                              ))
-                        ]
+                                  )),
+                              const IconButton(
+                                  onPressed: null, icon: Icon(Icons.share)),
+                              const IconButton(
+                                  onPressed: null,
+                                  icon: Icon(
+                                    Icons.notification_important_outlined,
+                                    color: Colors.amber,
+                                  ))
+                            ]
+                          ],
+                        ),
                       ],
                     ),
                 ],

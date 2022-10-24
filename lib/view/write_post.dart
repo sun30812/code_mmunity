@@ -6,6 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:highlight/languages/rust.dart';
 import 'package:highlight/languages/cpp.dart';
+import 'package:highlight/languages/cs.dart';
+import 'package:highlight/languages/kotlin.dart';
+import 'package:highlight/languages/python.dart';
+import 'package:highlight/languages/swift.dart';
+import 'package:highlight/languages/go.dart';
 import 'package:highlight/languages/dart.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:flutter_highlight/themes/atom-one-light.dart';
@@ -98,6 +103,26 @@ class _WritePostDialogState extends State<WritePostDialog> {
       case ProgrammingLanguage.cpp:
         _controller = CodeController(
             language: cpp, theme: _getTheme(), text: _controller.text);
+        break;
+      case ProgrammingLanguage.csharp:
+        _controller = CodeController(
+            language: cs, theme: _getTheme(), text: _controller.text);
+        break;
+      case ProgrammingLanguage.kotlin:
+        _controller = CodeController(
+            language: kotlin, theme: _getTheme(), text: _controller.text);
+        break;
+      case ProgrammingLanguage.python:
+        _controller = CodeController(
+            language: python, theme: _getTheme(), text: _controller.text);
+        break;
+      case ProgrammingLanguage.swift:
+        _controller = CodeController(
+            language: swift, theme: _getTheme(), text: _controller.text);
+        break;
+      case ProgrammingLanguage.go:
+        _controller = CodeController(
+            language: go, theme: _getTheme(), text: _controller.text);
         break;
       case ProgrammingLanguage.dart:
         _controller = CodeController(
