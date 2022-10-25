@@ -62,14 +62,7 @@ class Dashboard extends StatelessWidget {
             onPressed: () {
               bool darkMode =
                   MediaQuery.of(context).platformBrightness == Brightness.dark;
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  builder: (BuildContext context) => WritePostDialog(
-                        isDarkMode: darkMode,
-                      )).then((value) {
-                context.go('/posts');
-              });
+              context.go('/new-post', extra: darkMode);
             },
           )
         ],

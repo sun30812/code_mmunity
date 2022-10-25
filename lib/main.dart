@@ -2,6 +2,7 @@ import 'package:code_mmunity/view/dashboard.dart';
 import 'package:code_mmunity/view/login.dart';
 import 'package:code_mmunity/view/post_page.dart';
 import 'package:code_mmunity/view/style.dart';
+import 'package:code_mmunity/view/write_post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -60,6 +61,20 @@ class App extends StatelessWidget {
           },
           builder: (context, state) {
             return const Dashboard();
+          },
+        ),
+        GoRoute(
+          path: '/new-post',
+          redirect: (context, state) {
+            if (FirebaseAuth.instance.currentUser == null) {
+              return '/';
+            } else {
+              return null;
+            }
+          },
+          builder: (context, state) {
+            return WritePostPage(
+                isDarkMode: state.extra != null ? state.extra as bool : false);
           },
         ),
         GoRoute(

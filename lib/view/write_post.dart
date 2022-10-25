@@ -4,6 +4,7 @@ import 'package:code_mmunity/model/types.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:code_text_field/code_text_field.dart';
+import 'package:go_router/go_router.dart';
 import 'package:highlight/languages/rust.dart';
 import 'package:highlight/languages/cpp.dart';
 import 'package:highlight/languages/cs.dart';
@@ -18,12 +19,12 @@ import 'package:http/http.dart' as http;
 
 /// 게시글 작성을 누르면 나오는 다이얼로그 창이다.
 ///
-/// [WritePostDialog]위젯은 포스트 작성 시 필요한 옵션과 코드에디터로 구성된 다이얼로그이다. 별도의 매개변수는 가지지 않는다.
+/// [WritePostPage]위젯은 포스트 작성 시 필요한 옵션과 코드에디터로 구성된 페이지이다. 별도의 매개변수는 가지지 않는다.
 /// 게시글을 작성할 시 설정 변경에 따라 글자가 변경되어야 하므로 [StatefulWidget]을 상속한다.
 ///
 /// {@tool snippet}
 ///
-/// 이 예제는 [WritePostDialog]창을 띄우는 예제를 보여준다.
+/// 이 예제는 [WritePostPage]창을 띄우는 예제를 보여준다.
 ///
 /// ```dart
 /// IconButton(
@@ -37,15 +38,15 @@ import 'package:http/http.dart' as http;
 /// {@end-tool}
 ///
 ///
-class WritePostDialog extends StatefulWidget {
+class WritePostPage extends StatefulWidget {
   final bool? isDarkMode;
-  const WritePostDialog({this.isDarkMode, Key? key}) : super(key: key);
+  const WritePostPage({this.isDarkMode, Key? key}) : super(key: key);
 
   @override
-  State<WritePostDialog> createState() => _WritePostDialogState();
+  State<WritePostPage> createState() => _WritePostPageState();
 }
 
-class _WritePostDialogState extends State<WritePostDialog> {
+class _WritePostPageState extends State<WritePostPage> {
   /// 게시글의 제목에 사용되는 controller이다.
   ///
   /// 게시글 작성 창에서 게시글 제목 부분에 사용된다. 제목은 포스트 맨 위에 굵은 글씨로 나타난다.
@@ -143,85 +144,85 @@ class _WritePostDialogState extends State<WritePostDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      scrollable: true,
-      title: const Text('게시글 작성'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                const Text('언어 설정: '),
-                DropdownButton(
-                    value: _language,
-                    items: _menuItem,
-                    onChanged: (value) => setState(() {
-                          applyLanguage(value);
-                        })),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              const Text('게시글 제목: '),
-              Expanded(
-                  child: TextField(
-                controller: _title,
-                expands: false,
-              ))
-            ],
-          ),
-          SizedBox(
-            width: 800,
-            height: 500,
-            child: CodeField(
-                textStyle: const TextStyle(fontFamily: 'D2Coding'),
-                expands: true,
-                controller: _controller),
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('게시글 작성'),
+        actions: [
+          TextButton(onPressed: () => context.go('/'), child: const Text('취소')),
+          TextButton(
+              onPressed: () async {
+                if (_controller.text.isEmpty || _title.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('코드 또는 제목이 작성되지 않았습니다.')));
+                  return;
+                }
+                final PostController sendData = PostController(
+                    userId: FirebaseAuth.instance.currentUser!.uid,
+                    title: _title.text,
+                    userName: FirebaseAuth.instance.currentUser!.displayName ??
+                        '이름 없음',
+                    language: _language,
+                    data: _controller.rawText);
+
+                http.Response result = await http.post(
+                    Uri.parse(
+                        '${const String.fromEnvironment('API_SERVER_IP')}/api/posts'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode(sendData));
+                if (!mounted) {
+                  return;
+                }
+                if (result.statusCode == 201) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
+                  context.go('/');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          '게시글이 업로드 되지 않았습니다. [http 오류코드: ${result.statusCode}]')));
+                }
+              },
+              child: const Text('작성'))
         ],
       ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('취소')),
-        TextButton(
-            onPressed: () async {
-              if (_controller.text.isEmpty || _title.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('코드 또는 제목이 작성되지 않았습니다.')));
-                return;
-              }
-              final PostController sendData = PostController(
-                  userId: FirebaseAuth.instance.currentUser!.uid,
-                  title: _title.text,
-                  userName:
-                      FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',
-                  language: _language,
-                  data: _controller.rawText);
-
-              http.Response result = await http.post(
-                  Uri.parse(
-                      '${const String.fromEnvironment('API_SERVER_IP')}/api/posts'),
-                  headers: {'Content-Type': 'application/json'},
-                  body: jsonEncode(sendData));
-              if (!mounted) {
-                return;
-              }
-              if (result.statusCode == 201) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
-                Navigator.of(context).pop();
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        '게시글이 업로드 되지 않았습니다. [http 오류코드: ${result.statusCode}]')));
-              }
-            },
-            child: const Text('작성'))
-      ],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  const Text('언어 설정: '),
+                  DropdownButton(
+                      value: _language,
+                      items: _menuItem,
+                      onChanged: (value) => setState(() {
+                            applyLanguage(value);
+                          })),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                const Text('게시글 제목: '),
+                Expanded(
+                    child: TextField(
+                  controller: _title,
+                  expands: false,
+                ))
+              ],
+            ),
+            Expanded(
+              child: CodeField(
+                  textStyle: const TextStyle(fontFamily: 'D2Coding'),
+                  expands: true,
+                  controller: _controller),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
