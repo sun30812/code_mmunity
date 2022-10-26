@@ -146,7 +146,7 @@ class _WritePostPageState extends State<WritePostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('게시글 작성'),
+        title: const Text('게시글 작성'),
         actions: [
           TextButton(onPressed: () => context.go('/'), child: const Text('취소')),
           TextButton(

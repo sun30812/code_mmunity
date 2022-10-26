@@ -200,7 +200,7 @@ class _PostCardState extends State<PostCard> {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.edit_note_outlined),
+                                const Icon(Icons.edit_note_outlined),
                                 Text(
                                   widget.post.language.stringValue,
                                   style: const TextStyle(
@@ -244,7 +244,7 @@ class _PostCardState extends State<PostCard> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.calendar_month_outlined),
+                            const Icon(Icons.calendar_month_outlined),
                             if (widget.isPage)
                               Text(widget.post.createAt)
                             else
@@ -296,18 +296,18 @@ class _PostCardState extends State<PostCard> {
                                   (widget.post.userId ==
                                       FirebaseAuth.instance.currentUser!.uid))
                                 OutlinedButton(
-                                    style: ButtonStyle(),
+                                    style: const ButtonStyle(),
                                     onPressed: () => showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            title: Text('삭제 안내'),
-                                            content: Text(
+                                            title: const Text('삭제 안내'),
+                                            content: const Text(
                                                 '정말로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'),
                                             actions: [
                                               TextButton(
                                                   onPressed: () =>
                                                       Navigator.pop(context),
-                                                  child: Text('취소')),
+                                                  child: const Text('취소')),
                                               TextButton(
                                                   onPressed: () {
                                                     widget.post
@@ -323,7 +323,7 @@ class _PostCardState extends State<PostCard> {
                                                                 content: Text(
                                                                     '게시글이 삭제 되었습니다.')));
                                                   },
-                                                  child: Text('확인')),
+                                                  child: const Text('확인')),
                                             ],
                                           ),
                                         ),
