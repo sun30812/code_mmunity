@@ -310,11 +310,18 @@ class _PostCardState extends State<PostCard> {
                                                   child: Text('취소')),
                                               TextButton(
                                                   onPressed: () {
-                                                    widget.post.deletePost(
-                                                        const String
+                                                    widget.post
+                                                        .deletePost(const String
                                                                 .fromEnvironment(
-                                                            'API_SERVER_IP'));
-                                                    context.go('/');
+                                                            'API_SERVER_IP'))
+                                                        .then((_) => context.go(
+                                                            '/refresh-post'));
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                                content: Text(
+                                                                    '게시글이 삭제 되었습니다.')));
                                                   },
                                                   child: Text('확인')),
                                             ],

@@ -183,20 +183,20 @@ class PostController {
   String get createAt => _post.createAt;
 
   /// 포스트를 삭제하는 메서드이다.
-  void deletePost(String serverIp) async {
-    await http.delete(Uri.parse(
+  Future<void> deletePost(String serverIp) async {
+    http.delete(Uri.parse(
         '$serverIp/api/posts?user_id=${_post.userId}&post_id=${_post.id}'));
   }
 
   /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
-  void incrementLikes(String serverIp) async {
-    await http.patch(
+  Future<void> incrementLikes(String serverIp) async {
+    http.patch(
         Uri.parse('$serverIp/api/likes?post_id=${_post.id}&mode=Increment'));
   }
 
   /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
-  void decrementLikes(String serverIp) async {
-    await http.patch(
+  Future<void> decrementLikes(String serverIp) async {
+    http.patch(
         Uri.parse('$serverIp/api/likes?post_id=${_post.id}&mode=Decrement'));
   }
 

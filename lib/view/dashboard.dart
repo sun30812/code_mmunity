@@ -46,6 +46,11 @@ class Dashboard extends StatelessWidget {
             tooltip: '로그아웃',
           ),
           IconButton(
+            onPressed: () => context.go('/refresh-post'),
+            icon: const Icon(Icons.refresh_outlined),
+            tooltip: '새로고침',
+          ),
+          IconButton(
             onPressed: () {
               // TODO: 환경설정창으로 이동하는 동작 구현 필요
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -62,7 +67,7 @@ class Dashboard extends StatelessWidget {
             onPressed: () {
               bool darkMode =
                   MediaQuery.of(context).platformBrightness == Brightness.dark;
-              context.go('/new-post', extra: darkMode);
+              context.push('/posts/new', extra: darkMode);
             },
           )
         ],
@@ -134,20 +139,25 @@ class _PostsPageState extends State<PostsPage> {
                 } else if (snapshot.hasError) {
                   return ServerErrorPage(error: snapshot.error);
                 } else if (snapshot.hasData) {
-                  return LayoutBuilder(
-                    builder:
-                        (BuildContext context, BoxConstraints constraints) {
-                      List<PostController> posts =
-                          snapshot.data as List<PostController>;
-                      return GridView.count(
-                        crossAxisCount: getCrossAxisCount(
-                            constraints.maxWidth.toInt() - 300),
-                        childAspectRatio: 1 / 0.5,
-                        children: List.generate(posts.length, (index) {
-                          return PostCard(post: posts[index]);
-                        }),
-                      );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      setState(() {});
                     },
+                    child: LayoutBuilder(
+                      builder:
+                          (BuildContext context, BoxConstraints constraints) {
+                        List<PostController> posts =
+                            snapshot.data as List<PostController>;
+                        return GridView.count(
+                          crossAxisCount: getCrossAxisCount(
+                              constraints.maxWidth.toInt() - 300),
+                          childAspectRatio: 1 / 0.5,
+                          children: List.generate(posts.length, (index) {
+                            return PostCard(post: posts[index]);
+                          }),
+                        );
+                      },
+                    ),
                   );
                 } else {
                   return ServerErrorPage(

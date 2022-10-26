@@ -175,7 +175,7 @@ class _WritePostPageState extends State<WritePostPage> {
                 if (result.statusCode == 201) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('게시글이 업로드 되었습니다.')));
-                  context.go('/');
+                  context.go('/refresh-post');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(

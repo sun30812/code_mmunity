@@ -1,4 +1,5 @@
 import 'package:code_mmunity/view/dashboard.dart';
+import 'package:code_mmunity/view/refresh_page.dart';
 import 'package:code_mmunity/view/login.dart';
 import 'package:code_mmunity/view/post_page.dart';
 import 'package:code_mmunity/view/style.dart';
@@ -64,7 +65,7 @@ class App extends StatelessWidget {
           },
         ),
         GoRoute(
-          path: '/new-post',
+          path: '/posts/new',
           redirect: (context, state) {
             if (FirebaseAuth.instance.currentUser == null) {
               return '/';
@@ -75,6 +76,19 @@ class App extends StatelessWidget {
           builder: (context, state) {
             return WritePostPage(
                 isDarkMode: state.extra != null ? state.extra as bool : false);
+          },
+        ),
+        GoRoute(
+          path: '/refresh-post',
+          redirect: (context, state) {
+            if (FirebaseAuth.instance.currentUser == null) {
+              return '/';
+            } else {
+              return null;
+            }
+          },
+          builder: (context, state) {
+            return const RefreshPage();
           },
         ),
         GoRoute(
