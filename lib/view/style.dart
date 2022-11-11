@@ -377,6 +377,23 @@ class _PostCardState extends State<PostCard> {
   }
 }
 
+class CommentCard extends StatelessWidget {
+  final String userName;
+  final String data;
+  const CommentCard({required this.userName, required this.data, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            children: [Text(userName), Text(data)],
+          )),
+    );
+  }
+}
+
 class ServerErrorPage extends StatelessWidget {
   final dynamic error;
   const ServerErrorPage({

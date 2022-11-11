@@ -16,8 +16,9 @@ class CommentController {
   /// [compute()]메서드를 통해서 내부에서 독립적으로 처리할 수 있도록 하여 사용자에게는
   /// 쾌적하게 동작하도록 설계되었다.
   static Future<List<CommentController>> fromServer(
-      {required String serverIp}) async {
-    final response = await http.get(Uri.parse('$serverIp/comments'));
+      {required String serverIp, required String postId}) async {
+    final response =
+        await http.get(Uri.parse('$serverIp/api/comments/$postId'));
     return compute(_parseComments, response.body);
   }
 
@@ -34,27 +35,25 @@ class CommentController {
   }
 
   CommentController({
-    int id = -1,
-    required String uid,
+    int commentId = -1,
+    required String userId,
+    required String userName,
     required String data,
-    int likes = 0,
-    int reportCount = 0,
     String createAt = '2022-10-11 21:29:30',
   }) {
-      _comment = Comment(
-        id: id,
-        uid: uid,
-        data: data,
-        likes: likes,
-        reportCount: reportCount,
-        createAt: createAt,
-      );
-    
+    _comment = Comment(
+      commentId: commentId,
+      userId: userId,
+      userName: userName,
+      data: data,
+      createAt: createAt,
+    );
   }
 
   factory CommentController.dummy() {
     return CommentController(
-      uid: 'g\$34d%j234',
+      userId: 'g\$34d%j234',
+      userName: 'dummy_user',
       data: 'Dummy Comment Data',
     );
   }
@@ -62,11 +61,12 @@ class CommentController {
   /// 아무 내용이 없는 댓글를 만들기 위한 메서드이다.
   ///
   /// 어떠한 문제로 인해 댓글를 넘겨줄 수 없을 때 `null`대신 넘길 수 있는 댓글를 만들어준다.
-  /// 프로그램 오류 없이 [uid]가 `null`로 설정되기 때문에 댓글 정보를 받는 입장에서는 이러한 댓글를
+  /// 프로그램 오류 없이 [userName]가 `null`로 설정되기 때문에 댓글 정보를 받는 입장에서는 이러한 댓글를
   /// 받았을 때 적절한 처리가 가능해진다.
   factory CommentController.none() {
     return CommentController(
-      uid: 'null',
+      userId: 'null',
+      userName: 'null',
       data: '',
     );
   }
@@ -82,48 +82,26 @@ class CommentController {
   /// - [Comment]
   factory CommentController.fromJson(Map<String, dynamic> json) {
     return CommentController(
-      id: json['id'] as int,
-      uid: json['uid'],
+      commentId: json['comment_id'] as int,
+      userId: json['user_id'],
+      userName: json['user_name'],
       data: json['data'],
-      likes: json['likes'] as int,
-      reportCount: json['report_count'] as int,
       createAt: json['create_at'],
     );
   }
 
   /// 작성한 댓글을 API서버로 전송하기 위한 형태로 변환하는 메서드이다.
-  Map<String, dynamic> toJson() =>
-      {'uid': uid,  'data': data};
+  Map<String, dynamic> toJson() => {'uid': userName, 'data': data};
 
   /// 댓글의 id를 가져온다.
-  int get id => _comment.id;
+  int get id => _comment.commentId;
 
-  /// 댓글의 UID를 가져온다.
-  String get uid => _comment.uid;
-  
+  /// 댓글의 작성자를 가져온다.
+  String get userName => _comment.userName;
+
+  /// 댓글의 작성자의 고유 ID를 가져온다.
+  String get userId => _comment.userId;
 
   /// 댓글 내용을 가져온다.
   String get data => _comment.data;
-
-  /// 공감 수를 가져온다.
-  int get likes => _comment.likes;
-
-  /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
-  void incrementLikes() async {
-    await http.post(Uri.parse(
-        'http://localhost:3000/api/comments/likes?id=${_comment.id}&?mode=increment'));
-    _comment.likes++;
-  }
-
-  /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
-  void decrementLikes() async {
-    await http.post(Uri.parse(
-        'http://localhost:3000/api/comments/likes?id=${_comment.id}&?mode=decrement'));
-    _comment.likes--;
-  }
-
-  /// 신고버튼을 누를 시 신고 횟수를 올려주는 메서드이다.
-  void report() {
-    _comment.reportCount++;
-  }
 }

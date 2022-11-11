@@ -1,3 +1,4 @@
+import 'package:code_mmunity/controller/comment_controller.dart';
 import 'package:code_mmunity/controller/post_controller.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:flutter/material.dart';
@@ -47,42 +48,44 @@ class _PostPageState extends State<PostPage> {
               },
             ),
           ),
-          Expanded(
-              child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(
-                        Icons.chat_bubble_outline,
-                        size: 23.0,
-                      ),
-                      Text('댓글',
-                          style: TextStyle(
-                              fontSize: 23.0, fontWeight: FontWeight.w600))
-                    ],
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            Icons.code_off_outlined,
-                            size: 32.0,
-                          ),
-                          Text('현재 미리보기 버전에서는 이 기능이 동작하지 않습니다.')
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Icon(Icons.chat_outlined),
+                Text(
+                  ' 댓글',
+                  style: TextStyle(fontSize: 23.0),
+                )
+              ],
             ),
-          ))
+          ),
+          Expanded(
+            child: FutureBuilder<List<CommentController>>(
+              future: CommentController.fromServer(
+                  serverIp: const String.fromEnvironment('API_SERVER_IP'),
+                  postId: widget.postId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child: CircularProgressIndicator.adaptive());
+                } else if (snapshot.hasData) {
+                  List<CommentController> lists = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: lists.length,
+                    itemBuilder: (context, index) {
+                      return CommentCard(
+                        userName: lists[index].userName,
+                        data: lists[index].data,
+                      );
+                    },
+                  );
+                } else {
+                  return ServerErrorPage(error: snapshot.error);
+                }
+              },
+            ),
+          )
         ],
       ),
     );
