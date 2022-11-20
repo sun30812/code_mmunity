@@ -16,7 +16,7 @@ class CommentController {
   /// [compute()]메서드를 통해서 내부에서 독립적으로 처리할 수 있도록 하여 사용자에게는
   /// 쾌적하게 동작하도록 설계되었다.
   static Future<List<CommentController>> fromServer(
-      {required String serverIp, required String postId}) async {
+      {required String serverIp, required int postId}) async {
     final response =
         await http.get(Uri.parse('$serverIp/api/comments/$postId'));
     return compute(_parseComments, response.body);
@@ -36,6 +36,7 @@ class CommentController {
 
   CommentController({
     int commentId = -1,
+    required int postId,
     required String userId,
     required String userName,
     required String data,
@@ -43,6 +44,7 @@ class CommentController {
   }) {
     _comment = Comment(
       commentId: commentId,
+      postId: postId,
       userId: userId,
       userName: userName,
       data: data,
@@ -52,6 +54,7 @@ class CommentController {
 
   factory CommentController.dummy() {
     return CommentController(
+      postId: -1,
       userId: 'g\$34d%j234',
       userName: 'dummy_user',
       data: 'Dummy Comment Data',
@@ -65,6 +68,7 @@ class CommentController {
   /// 받았을 때 적절한 처리가 가능해진다.
   factory CommentController.none() {
     return CommentController(
+      postId: -1,
       userId: 'null',
       userName: 'null',
       data: '',
@@ -83,6 +87,7 @@ class CommentController {
   factory CommentController.fromJson(Map<String, dynamic> json) {
     return CommentController(
       commentId: json['comment_id'] as int,
+      postId: json['post_id'] as int,
       userId: json['user_id'],
       userName: json['user_name'],
       data: json['data'],
@@ -91,10 +96,14 @@ class CommentController {
   }
 
   /// 작성한 댓글을 API서버로 전송하기 위한 형태로 변환하는 메서드이다.
-  Map<String, dynamic> toJson() => {'uid': userName, 'data': data};
+  Map<String, dynamic> toJson() =>
+      {'post_id': postId, 'user_id': userId, 'data': data};
 
   /// 댓글의 id를 가져온다.
   int get id => _comment.commentId;
+
+  /// 게시글의 id를 가져온다.
+  int get postId => _comment.postId;
 
   /// 댓글의 작성자를 가져온다.
   String get userName => _comment.userName;
@@ -104,4 +113,7 @@ class CommentController {
 
   /// 댓글 내용을 가져온다.
   String get data => _comment.data;
+
+  /// 댓글의 작성 날짜를 가져온다.
+  String get createAt => _comment.createAt;
 }

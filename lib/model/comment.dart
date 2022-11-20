@@ -6,7 +6,7 @@
 /// [CommentController] 생성자를 통해 객체를 생성하기 바란다.
 class Comment {
   final String userId, userName, data, createAt;
-  int commentId;
+  int commentId, postId;
 
   /// 댓글 객체를 생성한다.
   ///
@@ -18,6 +18,9 @@ class Comment {
   Comment({
     /// 댓글의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
     required this.commentId,
+
+    /// 게시글의 고유 ID부분에 해당된다. `null`이 될 수 없다.
+    required this.postId,
 
     /// 댓글의 작성자를 식별하는 ID 부분에 해당된다. `null`이 될 수 없다.
     required this.userId,

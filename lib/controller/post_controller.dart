@@ -34,7 +34,7 @@ class PostController {
   /// [compute()]메서드를 통해서 내부에서 독립적으로 처리할 수 있도록 하여 사용자에게는
   /// 쾌적하게 동작하도록 설계되었다.
   static Future<PostController> fromServerPost(
-      {required String serverIp, required String postId}) async {
+      {required String serverIp, required int postId}) async {
     final response = await http.get(Uri.parse('$serverIp/api/posts/$postId'));
     if (response.statusCode == 404) {
       return PostController.none();

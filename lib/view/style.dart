@@ -386,7 +386,7 @@ class CommentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [Text(userName), Text(data)],
           )),
