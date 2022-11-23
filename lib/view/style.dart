@@ -30,11 +30,6 @@ import '../controller/post_controller.dart';
 /// [onClick] 매개변수에 아무 값도 넘겨주지 않으므로써 비활성화 된 버튼을 제작할 수 있다.
 /// 이 경우 버튼은 색상은 회색으로 표시되며 눌리지 않는다.
 class SubmitButton extends StatelessWidget {
-  /// 버튼의 테마 색상이다. 아직 지원되지 않는다.
-  ///
-  /// TODO: 버튼 색상을 변경 가능하도록 로직 수정 필요
-  final Color buttonColor;
-
   /// 버튼의 텍스트이며 [iconData] 오른쪽에 위치한다. `null`이 될 수 없다.
   final String buttonTitle;
 
@@ -50,11 +45,7 @@ class SubmitButton extends StatelessWidget {
   /// [iconData]가 지정되지 않은 경우 아이콘은 나타나지 않는다.
   /// [onClick] 매개변수를 통해 버튼 클릭시 동작을 정의한다.정의되지 않은 경우 버튼은 비활성화 된 모습으로 나타난다.
   const SubmitButton(
-      {Key? key,
-      required this.buttonTitle,
-      this.buttonColor = Colors.blueAccent,
-      this.iconData,
-      this.onClick})
+      {Key? key, required this.buttonTitle, this.iconData, this.onClick})
       : super(key: key);
 
   @override
@@ -180,196 +171,199 @@ class _PostCardState extends State<PostCard> {
       },
       child: Card(
         elevation: _isClicked ? 2.5 : 1.0,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(widget.post.title,
-                          style: const TextStyle(fontSize: 24.0)),
-                      if (!(widget.isNotice ?? false))
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.edit_note_outlined),
-                                Text(
-                                  widget.post.language.stringValue,
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Icon(Icons.person_outline),
-                                Text(
-                                  widget.post.userName,
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ],
-                        )
-                    ],
-                  ),
-                  if (widget.isNotice ?? false) ...[
-                    Text(widget.post.data)
-                  ] else ...[
-                    HighlightView(widget.post.data,
-                        language: widget.post.language.name,
-                        theme: atomOneLightTheme,
-                        textStyle: const TextStyle(
-                            fontSize: 18.0, fontFamily: 'D2Coding')),
-                  ]
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.isNotice == null || !widget.isNotice!)
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_month_outlined),
-                            if (widget.isPage)
-                              Text(widget.post.createAt)
-                            else
-                              Text(widget.post.createAt.substring(0, 10))
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            if (widget.isPage) ...[
-                              OutlinedButton(
-                                  onPressed: () => setState(() {
-                                        if (!_isLike) {
-                                          widget.post.incrementLikes(
-                                              const String.fromEnvironment(
-                                                  'API_SERVER_IP'));
-                                          _isLike = true;
-                                          _likes++;
-                                        } else {
-                                          widget.post.decrementLikes(
-                                              const String.fromEnvironment(
-                                                  'API_SERVER_IP'));
-                                          _isLike = false;
-                                          _likes--;
-                                        }
-                                      }),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Icon(
-                                        _isLike
-                                            ? Icons.favorite
-                                            : Icons.favorite_border_outlined,
-                                        color: Colors.pinkAccent,
-                                      ),
-                                      Text(_likes.toString())
-                                    ],
-                                  )),
-                              const IconButton(
-                                  onPressed: null, icon: Icon(Icons.share)),
-                              const IconButton(
-                                  onPressed: null,
-                                  icon: Icon(
-                                    Icons.notification_important_outlined,
-                                    color: Colors.amber,
-                                  )),
-                              if ((FirebaseAuth.instance.currentUser != null) &&
-                                  (widget.post.userId ==
-                                      FirebaseAuth.instance.currentUser!.uid))
-                                OutlinedButton(
-                                    style: const ButtonStyle(),
-                                    onPressed: () => showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text('삭제 안내'),
-                                            content: const Text(
-                                                '정말로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'),
-                                            actions: [
-                                              TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(context),
-                                                  child: const Text('취소')),
-                                              TextButton(
-                                                  onPressed: () {
-                                                    widget.post
-                                                        .deletePost(const String
-                                                                .fromEnvironment(
-                                                            'API_SERVER_IP'))
-                                                        .then((_) => context.go(
-                                                            '/refresh-post'));
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                            const SnackBar(
-                                                                content: Text(
-                                                                    '게시글이 삭제 되었습니다.')));
-                                                  },
-                                                  child: const Text('확인')),
-                                            ],
-                                          ),
-                                        ),
-                                    child: Row(
-                                      children: const [
-                                        Icon(Icons.delete_outline),
-                                        Text('게시글 삭제')
-                                      ],
-                                    ))
-                            ] else ...[
-                              IconButton(
-                                  onPressed: () => setState(() {
-                                        if (!_isLike) {
-                                          widget.post.incrementLikes(
-                                              const String.fromEnvironment(
-                                                  'API_SERVER_IP'));
-                                          _isLike = true;
-                                        } else {
-                                          widget.post.decrementLikes(
-                                              const String.fromEnvironment(
-                                                  'API_SERVER_IP'));
-                                          _isLike = false;
-                                        }
-                                      }),
-                                  icon: Icon(
-                                    _isLike
-                                        ? Icons.favorite
-                                        : Icons.favorite_border_outlined,
-                                    color: Colors.pinkAccent,
-                                  )),
-                              const IconButton(
-                                  onPressed: null, icon: Icon(Icons.share)),
-                              const IconButton(
-                                  onPressed: null,
-                                  icon: Icon(
-                                    Icons.notification_important_outlined,
-                                    color: Colors.amber,
-                                  ))
-                            ]
-                          ],
-                        ),
+                        Text(widget.post.title,
+                            style: const TextStyle(fontSize: 24.0)),
+                        if (!(widget.isNotice ?? false))
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.edit_note_outlined),
+                                  Text(
+                                    widget.post.language.stringValue,
+                                    style: const TextStyle(
+                                      fontSize: 20.0,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.person_outline),
+                                  Text(
+                                    widget.post.userName,
+                                    style: const TextStyle(
+                                      fontSize: 20.0,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
+                          )
                       ],
                     ),
-                ],
-              )
-            ],
+                    if (widget.isNotice ?? false) ...[
+                      Text(widget.post.data)
+                    ] else ...[
+                      HighlightView(widget.post.data,
+                          language: widget.post.language.name,
+                          theme: atomOneLightTheme,
+                          textStyle: const TextStyle(
+                              fontSize: 18.0, fontFamily: 'D2Coding')),
+                    ]
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.isNotice == null || !widget.isNotice!)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.calendar_month_outlined),
+                              if (widget.isPage)
+                                Text(widget.post.createAt)
+                              else
+                                Text(widget.post.createAt.substring(0, 10))
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (widget.isPage) ...[
+                                OutlinedButton(
+                                    onPressed: () => setState(() {
+                                          if (!_isLike) {
+                                            widget.post.incrementLikes(
+                                                const String.fromEnvironment(
+                                                    'API_SERVER_IP'));
+                                            _isLike = true;
+                                            _likes++;
+                                          } else {
+                                            widget.post.decrementLikes(
+                                                const String.fromEnvironment(
+                                                    'API_SERVER_IP'));
+                                            _isLike = false;
+                                            _likes--;
+                                          }
+                                        }),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Icon(
+                                          _isLike
+                                              ? Icons.favorite
+                                              : Icons.favorite_border_outlined,
+                                          color: Colors.pinkAccent,
+                                        ),
+                                        Text(_likes.toString())
+                                      ],
+                                    )),
+                                const IconButton(
+                                    onPressed: null, icon: Icon(Icons.share)),
+                                const IconButton(
+                                    onPressed: null,
+                                    icon: Icon(
+                                      Icons.notification_important_outlined,
+                                      color: Colors.amber,
+                                    )),
+                                if ((FirebaseAuth.instance.currentUser !=
+                                        null) &&
+                                    (widget.post.userId ==
+                                        FirebaseAuth.instance.currentUser!.uid))
+                                  OutlinedButton(
+                                      style: const ButtonStyle(),
+                                      onPressed: () => showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('삭제 안내'),
+                                              content: const Text(
+                                                  '정말로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: const Text('취소')),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      widget.post
+                                                          .deletePost(const String
+                                                                  .fromEnvironment(
+                                                              'API_SERVER_IP'))
+                                                          .then((_) => context.go(
+                                                              '/refresh-post'));
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                              const SnackBar(
+                                                                  content: Text(
+                                                                      '게시글이 삭제 되었습니다.')));
+                                                    },
+                                                    child: const Text('확인')),
+                                              ],
+                                            ),
+                                          ),
+                                      child: Row(
+                                        children: const [
+                                          Icon(Icons.delete_outline),
+                                          Text('게시글 삭제')
+                                        ],
+                                      ))
+                              ] else ...[
+                                IconButton(
+                                    onPressed: () => setState(() {
+                                          if (!_isLike) {
+                                            widget.post.incrementLikes(
+                                                const String.fromEnvironment(
+                                                    'API_SERVER_IP'));
+                                            _isLike = true;
+                                          } else {
+                                            widget.post.decrementLikes(
+                                                const String.fromEnvironment(
+                                                    'API_SERVER_IP'));
+                                            _isLike = false;
+                                          }
+                                        }),
+                                    icon: Icon(
+                                      _isLike
+                                          ? Icons.favorite
+                                          : Icons.favorite_border_outlined,
+                                      color: Colors.pinkAccent,
+                                    )),
+                                const IconButton(
+                                    onPressed: null, icon: Icon(Icons.share)),
+                                const IconButton(
+                                    onPressed: null,
+                                    icon: Icon(
+                                      Icons.notification_important_outlined,
+                                      color: Colors.amber,
+                                    ))
+                              ]
+                            ],
+                          ),
+                        ],
+                      ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -384,12 +378,22 @@ class CommentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [Text(userName), Text(data)],
-          )),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Card(
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userName,
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                Text(data)
+              ],
+            )),
+      ),
     );
   }
 }
@@ -559,6 +563,57 @@ class NotFoundPostErrorPage extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class SettingsCard extends StatefulWidget {
+  final IconData leadingIcon;
+  final String title;
+  final String? settingHint;
+  final Widget content;
+  const SettingsCard(
+      {required this.leadingIcon,
+      required this.title,
+      this.settingHint,
+      required this.content,
+      super.key});
+
+  @override
+  State<SettingsCard> createState() => _SettingsCardState();
+}
+
+class _SettingsCardState extends State<SettingsCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(widget.leadingIcon),
+                Text(
+                  widget.title,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                )
+              ],
+            ),
+            if (widget.settingHint != null)
+              Text(
+                widget.settingHint!,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            const Divider(),
+            widget.content
+          ],
+        ),
       ),
     );
   }

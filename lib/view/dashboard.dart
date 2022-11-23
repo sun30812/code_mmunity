@@ -1,4 +1,5 @@
 import 'package:code_mmunity/controller/post_controller.dart';
+import 'package:code_mmunity/controller/post_user_controller.dart';
 import 'package:code_mmunity/model/post.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,10 +16,15 @@ import 'package:go_router/go_router.dart';
 /// - [PostsPage]
 /// - [PostCard]
 ///
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   /// 시연용 대시보드의 화면을 나타내는 생성자이다.
   const Dashboard({Key? key}) : super(key: key);
 
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,10 +36,29 @@ class Dashboard extends StatelessWidget {
               '대시보드',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              FirebaseAuth.instance.currentUser!.displayName ?? '이름 없음',
-              style: const TextStyle(fontSize: 16.0),
-            )
+            FutureBuilder<PostUserController>(
+                future: PostUserController.getUser(
+                    serverIp: const String.fromEnvironment('API_SERVER_IP'),
+                    userId: FirebaseAuth.instance.currentUser!.uid),
+                builder: (BuildContext context,
+                    AsyncSnapshot<PostUserController> snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Text(
+                      '로드 중...',
+                      style: TextStyle(fontSize: 16.0),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Text(
+                      '로드 중...',
+                      style: TextStyle(fontSize: 16.0),
+                    );
+                  } else {
+                    return Text(
+                      snapshot.data!.userName,
+                      style: const TextStyle(fontSize: 16.0),
+                    );
+                  }
+                })
           ],
         ),
         actions: [
@@ -45,17 +70,13 @@ class Dashboard extends StatelessWidget {
             tooltip: '로그아웃',
           ),
           IconButton(
-            onPressed: () => context.go('/refresh-post'),
+            onPressed: () => context.go('/refresh-posts'),
             icon: const Icon(Icons.refresh_outlined),
             tooltip: '새로고침',
           ),
           IconButton(
             onPressed: () {
-              // TODO: 환경설정창으로 이동하는 동작 구현 필요
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('현재 이 기능은 동작하지 않습니다.'),
-                duration: Duration(seconds: 2),
-              ));
+              context.push('/settings');
             },
             icon: const Icon(Icons.settings_outlined),
             tooltip: '환경설정',

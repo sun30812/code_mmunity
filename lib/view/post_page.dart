@@ -26,6 +26,10 @@ class _PostPageState extends State<PostPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/')),
       ),
       body: Column(
         children: [
@@ -82,6 +86,23 @@ class _PostPageState extends State<PostPage> {
                       children: [
                         TextButton(
                             onPressed: () async {
+                              if (controller.text.isEmpty) {
+                                showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          title: const Text('오류'),
+                                          content:
+                                              const Text('댓글이 작성되지 않았습니다.'),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: const Text('닫기'))
+                                          ],
+                                        ));
+                                return;
+                              }
                               CommentController sendData = CommentController(
                                   postId: widget.postId,
                                   userId:

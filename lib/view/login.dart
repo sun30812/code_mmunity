@@ -86,18 +86,6 @@ class LoginPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: SubmitButton(
-                      buttonTitle: '로그인 없이 살펴보기',
-                      iconData: Icons.view_carousel_outlined,
-                      onClick: () => ScaffoldMessenger.of(context)
-                          .showSnackBar(const SnackBar(
-                        content: Text('현재 이 기능은 동작하지 않습니다.'),
-                        duration: Duration(seconds: 2),
-                      )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: SubmitButton(
                       buttonTitle: 'Google로 로그인하기',
                       iconData: Icons.key_outlined,
                       onClick: () async {

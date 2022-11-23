@@ -3,6 +3,7 @@ import 'package:code_mmunity/view/refresh_page.dart';
 import 'package:code_mmunity/view/login.dart';
 import 'package:code_mmunity/view/post_page.dart';
 import 'package:code_mmunity/view/refresh_post_page.dart';
+import 'package:code_mmunity/view/settings.dart';
 import 'package:code_mmunity/view/style.dart';
 import 'package:code_mmunity/view/write_post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -64,6 +65,17 @@ class App extends StatelessWidget {
           builder: (context, state) {
             return const Dashboard();
           },
+        ),
+        GoRoute(
+          path: '/settings',
+          redirect: (context, state) {
+            if (FirebaseAuth.instance.currentUser == null) {
+              return '/';
+            } else {
+              return null;
+            }
+          },
+          builder: (context, state) => SettingsPage(),
         ),
         GoRoute(
           path: '/posts/new',
