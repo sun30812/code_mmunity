@@ -42,6 +42,19 @@ class PostUserController {
         '$serverIp/api/users?user_id=${_user.userId}&user_name=${_user.userName}'));
   }
 
+  /// 사용자를 서버에서 제거하는 메서드이다.
+  Future<void> deleteUser(String serverIp) {
+    FirebaseAuth.instance.currentUser!.delete();
+    return http.delete(Uri.parse(
+        '$serverIp/api/users?user_id=${_user.userId}&user_name=${_user.userName}'));
+  }
+
+  /// 사용자의 ID를 변경하는 메서드이다.
+  Future<void> updateUser(String serverIp, String newUserName) {
+    return http.patch(Uri.parse(
+        '$serverIp/api/users?user_id=${_user.userId}&user_name=$newUserName'));
+  }
+
   static PostUserController _parseUser(String response) {
     return PostUserController.fromJson(jsonDecode(response));
   }
