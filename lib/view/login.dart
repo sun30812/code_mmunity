@@ -69,13 +69,6 @@ class LoginPage extends StatelessWidget {
                 ],
               ),
               const Text(
-                ' [미리보기 버전]',
-                style: TextStyle(
-                    fontFamily: 'D2Coding',
-                    fontSize: 31.0,
-                    fontWeight: FontWeight.bold),
-              ),
-              const Text(
                 '코드로 통하는 우리들의 커뮤니티.\n코드뮤니티에 오신걸 환영합니다.',
                 style: TextStyle(
                   fontSize: 24.0,
