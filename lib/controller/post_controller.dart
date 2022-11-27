@@ -189,15 +189,15 @@ class PostController {
   }
 
   /// 공감 버튼을 누를 시 공감수를 추가해주는 메서드이다.
-  Future<void> incrementLikes(String serverIp) async {
+  Future<void> incrementLikes(String serverIp, String userId) async {
     http.patch(
-        Uri.parse('$serverIp/api/likes?post_id=${_post.id}&mode=Increment'));
+        Uri.parse('$serverIp/api/likes?user_id=$userId&post_id=${_post.id}&mode=Increment'));
   }
 
   /// 공감 버튼을 다시 누를 시 공감수를 감소시켜주는 메서드이다.
-  Future<void> decrementLikes(String serverIp) async {
+  Future<void> decrementLikes(String serverIp, String userId) async {
     http.patch(
-        Uri.parse('$serverIp/api/likes?post_id=${_post.id}&mode=Decrement'));
+        Uri.parse('$serverIp/api/likes?user_id=$userId&post_id=${_post.id}&mode=Decrement'));
   }
 
   /// 신고버튼을 누를 시 신고 횟수를 올려주는 메서드이다.

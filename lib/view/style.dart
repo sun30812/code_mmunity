@@ -252,13 +252,13 @@ class _PostCardState extends State<PostCard> {
                                           if (!_isLike) {
                                             widget.post.incrementLikes(
                                                 const String.fromEnvironment(
-                                                    'API_SERVER_IP'));
+                                                    'API_SERVER_IP'), 'user_id');
                                             _isLike = true;
                                             _likes++;
                                           } else {
                                             widget.post.decrementLikes(
                                                 const String.fromEnvironment(
-                                                    'API_SERVER_IP'));
+                                                    'API_SERVER_IP'), 'user_id');
                                             _isLike = false;
                                             _likes--;
                                           }
@@ -332,12 +332,12 @@ class _PostCardState extends State<PostCard> {
                                           if (!_isLike) {
                                             widget.post.incrementLikes(
                                                 const String.fromEnvironment(
-                                                    'API_SERVER_IP'));
+                                                    'API_SERVER_IP'), 'user_id');
                                             _isLike = true;
                                           } else {
                                             widget.post.decrementLikes(
                                                 const String.fromEnvironment(
-                                                    'API_SERVER_IP'));
+                                                    'API_SERVER_IP'), 'user_id');
                                             _isLike = false;
                                           }
                                         }),
