@@ -35,7 +35,6 @@ class CommentController {
   }
 
   CommentController({
-    int commentId = -1,
     required int postId,
     required String userId,
     required String userName,
@@ -43,7 +42,6 @@ class CommentController {
     String createAt = '2022-10-11 21:29:30',
   }) {
     _comment = Comment(
-      commentId: commentId,
       postId: postId,
       userId: userId,
       userName: userName,
@@ -86,7 +84,6 @@ class CommentController {
   /// - [Comment]
   factory CommentController.fromJson(Map<String, dynamic> json) {
     return CommentController(
-      commentId: json['comment_id'] as int,
       postId: json['post_id'] as int,
       userId: json['user_id'],
       userName: json['user_name'],
@@ -99,8 +96,6 @@ class CommentController {
   Map<String, dynamic> toJson() =>
       {'post_id': postId, 'user_id': userId, 'data': data};
 
-  /// 댓글의 id를 가져온다.
-  int get id => _comment.commentId;
 
   /// 게시글의 id를 가져온다.
   int get postId => _comment.postId;

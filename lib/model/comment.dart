@@ -6,18 +6,15 @@
 /// [CommentController] 생성자를 통해 객체를 생성하기 바란다.
 class Comment {
   final String userId, userName, data, createAt;
-  int commentId, postId;
+  int postId;
 
   /// 댓글 객체를 생성한다.
   ///
-  /// 댓글 각각을 구분하기 위해 [commentId]가 반드시 표함되어야 한다.
   /// [data]에는 댓글 내용이 들어가고, 작성자를 확인하기 위해 [userName]가 사용된다.
   /// 댓글의 공감 수를 나타내는 [likes], 신고 횟수에 해당하는 [reportCount]가
   /// 존재하여 포스트처럼 댓글도 사용자의 공감이나 신고를 받을 수 있다.
   /// 댓글의 작성 날짜는 [createAt]을 통해 받는다.
   Comment({
-    /// 댓글의 고유 ID 부분에 해당된다. `null`이 될 수 없다.
-    required this.commentId,
 
     /// 게시글의 고유 ID부분에 해당된다. `null`이 될 수 없다.
     required this.postId,

@@ -308,7 +308,7 @@ class _PostCardState extends State<PostCard> {
                                                                   .fromEnvironment(
                                                               'API_SERVER_IP'))
                                                           .then((_) => context.go(
-                                                              '/refresh-post'));
+                                                              '/'));
                                                       ScaffoldMessenger.of(
                                                               context)
                                                           .showSnackBar(
